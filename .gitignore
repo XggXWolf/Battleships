@@ -1,0 +1,34 @@
+#Root node_modules
+node_modules/
+
+# Log files
+logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Vite / React
+client/node_modules/
+client/dist/
+client/.env.local   
+client/.env.*.local
+
+# NestJS / Server
+server/node_modules/
+server/dist/
+server/.env
+
+# Shared Workspace
+shared/node_modules/
+shared/dist/
+
+# Editor configs
+.vscode/
+.idea/
