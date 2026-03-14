@@ -1,5 +1,6 @@
 import NavMenu from "./NavMenu/NavMenu";
 import Logo from "../Logo";
+import PlayerInfo from "../PlayerInfo";
 
 export default function Desktop() {
     return (
@@ -7,6 +8,11 @@ export default function Desktop() {
             <Logo />
             <div className="right-panel flex items-center">
                 <NavMenu />
+                <PlayerInfo
+                    playerRank="Cmdr."
+                    playerName="Admiral_Rico"
+                    playerElo={1550}
+                />
             </div>
         </div>
     );
