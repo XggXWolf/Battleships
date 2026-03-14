@@ -1,3 +1,5 @@
+import truncateRank from "../../util/truncateRank";
+
 interface PlayerInfoProps {
     playerName: string;
     playerElo: number;
@@ -12,9 +14,9 @@ export default function PlayerInfo({
     return (
         <div className="flex items-center space-x-2 sm:space-x-4 ml-2 md:ml-8">
             <div id="player-info" className="flex items-center space-x-2">
-                <span className="text-sm font-medium text-gray-300 hidden sm:flex items-center truncate max-w-[150px]">
+                <span className="text-sm font-medium text-gray-300 hidden sm:flex items-center truncate max-w-37.5">
                     <span className="bg-blue-900/80 text-blue-100 text-xs font-bold px-2 py-0.5 rounded border border-blue-700 mr-2 shadow-sm">
-                        {playerRank}
+                        {truncateRank(playerRank)}
                     </span>
                     {playerName}
                 </span>
