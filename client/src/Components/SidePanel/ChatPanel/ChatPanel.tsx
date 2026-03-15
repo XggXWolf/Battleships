@@ -31,6 +31,16 @@ export default function ChatPanel({ hidden }: ChatPanelProps) {
                     <ChatMessage key={index} {...msg} />
                 ))}
             </div>
+            <div className="flex">
+                <input
+                    type="text"
+                    placeholder="Hello, world!"
+                    className="flex-grow p-3 rounded-l-lg bg-gray-700 border border-gray-600 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                />
+                <button className="bg-blue-600 hover:bg-blue-700 p-3 rounded-r-lg font-semibold transition">
+                    Send
+                </button>
+            </div>
         </div>
     );
 }
