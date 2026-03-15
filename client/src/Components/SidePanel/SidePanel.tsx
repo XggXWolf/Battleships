@@ -8,8 +8,8 @@ export default function SidePanel() {
                 id="side-panel"
                 className="bg-primary p-6 rounded-xl shadow-lg border border-color-border h-full min-h-100"
             >
-                <LobbyPanel hidden={false} />
-                <ChatPanel hidden={true} />
+                <LobbyPanel hidden={true} />
+                <ChatPanel hidden={false} />
             </div>
         </div>
     );
