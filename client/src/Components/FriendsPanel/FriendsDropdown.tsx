@@ -1,23 +1,51 @@
-import { useState } from "react";
+import { useState, type SetStateAction } from "react";
+import FriendsDropdownMenu from "./FriendsDropdownMenu";
+import FriendDetails from "./FriendDetails";
 
 export default function FriendsDropdown() {
-    const [open, setOpen] = useState(false);
+    const [openFriendsDropdown, setOpenFriendsDropdown] = useState(false);
+    const [selectedFriendId, setSelectedFriendId] = useState<number | null>(
+        null,
+    );
 
     function toggleDropdown() {
-        setOpen((prev) => !prev);
+        setOpenFriendsDropdown((prev) => !prev);
+        setSelectedFriendId(null);
     }
+
+    function onFriendClick(friendId: SetStateAction<number | null>) {
+        if (selectedFriendId === friendId) {
+            setSelectedFriendId(null);
+            return;
+        }
+        setSelectedFriendId(friendId);
+    }
+
+    const showFriendDetails = selectedFriendId !== null;
 
     return (
         <div className="fixed bottom-3 right-3 z-20 flex flex-col items-end space-y-2">
-            <div
-                className={`transition-all duration-200 ${
-                    open
-                        ? "opacity-100 translate-y-0"
-                        : "opacity-0 translate-y-2 pointer-events-none"
-                }`}
-            >
-                <div className="bg-primary border border-color-border rounded-lg shadow-lg p-4">
-                    <p className="text-gray-100">Friends</p>
+            <div className="flex flex-col items-end space-y-2 sm:flex-row sm:items-end sm:space-y-0 sm:space-x-2">
+                <div
+                    className={`transition-all duration-200 transform ${
+                        showFriendDetails
+                            ? "opacity-100 translate-x-0"
+                            : "opacity-0 translate-x-2 pointer-events-none"
+                    }`}
+                >
+                    {selectedFriendId !== null && (
+                        <FriendDetails friendId={selectedFriendId} />
+                    )}
+                </div>
+
+                <div
+                    className={`transition-all duration-200 ${
+                        openFriendsDropdown
+                            ? "opacity-100 translate-y-0"
+                            : "opacity-0 translate-y-2 pointer-events-none"
+                    }`}
+                >
+                    <FriendsDropdownMenu onFriendClick={onFriendClick} />
                 </div>
             </div>
 
