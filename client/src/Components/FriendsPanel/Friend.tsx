@@ -18,9 +18,8 @@ export default function Friend({
 }: FriendProps) {
     return (
         <>
-            <a
-                href="#"
-                className="friend-item flex items-center justify-between px-4 py-2 hover:bg-gray-700 group transition-colors"
+            <button
+                className="friend-item flex items-center justify-between px-4 py-2 hover:bg-gray-700 group transition-colors border-none bg-transparent text-left w-full"
                 onClick={onFriendClick}
             >
                 <div className="flex items-center">
@@ -36,7 +35,7 @@ export default function Friend({
                 <span className="text-xs text-gray-400 font-bold">
                     ELO: {elo}
                 </span>
-            </a>
+            </button>
         </>
     );
 }

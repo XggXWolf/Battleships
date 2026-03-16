@@ -1,19 +1,5 @@
-import type { ChatMessageProps } from "./ChatMessage";
+import dummyMessages from "../../../data/dummy/messages";
 import ChatMessage from "./ChatMessage";
-
-const dummyMessages: ChatMessageProps[] = [
-    {
-        uuid: "1",
-        type: "system",
-        content: "Game started! You are playing against Opponent.",
-    },
-    { uuid: "2", type: "player", content: "Good luck, have fun!" },
-    {
-        uuid: "3",
-        type: "opponent",
-        content: "You too! Let's have a great game.",
-    },
-];
 
 export default function ChatPanel() {
     return (

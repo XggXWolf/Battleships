@@ -14,6 +14,6 @@ const dummyFriends: {
         status: "online",
         elo: 1500,
     },
-];
+] as const;
 
 export default dummyFriends;
