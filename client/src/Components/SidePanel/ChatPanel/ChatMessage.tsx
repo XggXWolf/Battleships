@@ -3,6 +3,7 @@ export interface ChatMessageProps {
     content: string;
 
     //TO-DO
+    uuid?: string;
     senderId?: string;
     senderName?: string;
 }

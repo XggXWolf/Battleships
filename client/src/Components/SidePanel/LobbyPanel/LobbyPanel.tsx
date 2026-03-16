@@ -1,13 +1,6 @@
-interface LobbyPanelProps {
-    hidden: boolean;
-}
-
-export default function LobbyPanel({ hidden }: LobbyPanelProps) {
+export default function LobbyPanel() {
     return (
-        <div
-            id="lobby-panel"
-            className={`${hidden ? "hidden" : "block"} flex flex-col space-y-4 h-full`}
-        >
+        <div id="lobby-panel" className="flex flex-col space-y-4 h-full">
             <h3 className="text-xl font-bold text-center text-blue-400 border-b border-gray-700 pb-3 mb-2">
                 Welcome, Commander!
             </h3>
