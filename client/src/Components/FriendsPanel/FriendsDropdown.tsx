@@ -16,14 +16,14 @@ export default function FriendsDropdown() {
                         : "opacity-0 translate-y-2 pointer-events-none"
                 }`}
             >
-                <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4">
-                    <p className="text-gray-400">Friends</p>
+                <div className="bg-primary border border-color-border rounded-lg shadow-lg p-4">
+                    <p className="text-gray-100">Friends</p>
                 </div>
             </div>
 
             <button
                 id="friends-dropdown-btn"
-                className="relative p-3 rounded-lg bg-gray-800 border border-gray-700 hover:border-gray-500 text-gray-400 hover:text-white shadow-lg transition"
+                className="relative p-3 rounded-lg bg-primary border border-color-border hover:border-gray-500 text-gray-400 hover:text-white shadow-lg transition"
                 onClick={toggleDropdown}
             >
                 <div className="relative flex items-center justify-center">
