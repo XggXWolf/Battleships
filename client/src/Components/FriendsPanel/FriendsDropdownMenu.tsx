@@ -1,6 +1,8 @@
 import Friend from "./Friend";
 import dummyFriends from "../../data/dummy/friends";
 
+// Dropdown menu that appears when clicking the Friends button.
+// It shows the list of friends, their online status, and allows you to click on a friend to see more details or invite them to a game.
 export default function FriendsDropdownMenu({
     onFriendClick,
 }: {

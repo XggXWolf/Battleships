@@ -1,9 +1,63 @@
-import Desktop from "./Desktop/Desktop";
+import { useEffect, useRef, useState } from "react";
+import playerData from "../../data/dummy/player";
+import DesktopNavMenu from "./Desktop/DesktopNavMenu";
+import Logo from "./Logo";
+import MobileNavMenu from "./Mobile/MobileNavMenu";
+import PlayerInfo from "./PlayerInfo";
+import MobileNavDropdownMenu from "./Mobile/MobileNavDropdownMenu";
+import { useLocation } from "react-router";
 
 export default function Header() {
+    // Close mobile menu when navigating to a new page
+    const location = useLocation();
+    useEffect(() => {
+        setIsMobileMenuOpen(false);
+    }, [location]);
+
+    // Track the height of the mobile menu for smooth transitions
+    const [menuHeight, setMenuHeight] = useState(0);
+    const menuRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (menuRef.current) {
+            setMenuHeight(menuRef.current.scrollHeight);
+        }
+    }, []);
+
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    const toggleMobileMenu = () => {
+        setIsMobileMenuOpen((prev) => !prev);
+    };
+
     return (
         <header className="bg-primary shadow-xl border-b border-color-border sticky top-0 z-30">
-            <Desktop />
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+                <Logo />
+                <div className="right-panel flex items-center">
+                    <DesktopNavMenu />
+                    <div className="flex items-center space-x-2 sm:space-x-4 ml-2 md:ml-8">
+                        <PlayerInfo
+                            playerRank={playerData.rank}
+                            playerName={playerData.name}
+                            playerElo={playerData.elo}
+                        />
+                        <MobileNavMenu onClick={toggleMobileMenu} />
+                    </div>
+                </div>
+            </div>
+
+            <div
+                ref={menuRef}
+                style={{
+                    height: isMobileMenuOpen ? menuHeight : 0,
+                    overflow: "hidden",
+                    transition: "height 200ms ease",
+                }}
+                className="md:hidden"
+            >
+                <MobileNavDropdownMenu />
+            </div>
         </header>
     );
 }

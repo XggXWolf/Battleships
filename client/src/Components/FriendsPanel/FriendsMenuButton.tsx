@@ -2,7 +2,8 @@ import { useState, type SetStateAction } from "react";
 import FriendsDropdownMenu from "./FriendsDropdownMenu";
 import FriendDetails from "./FriendDetails";
 
-export default function FriendsDropdown() {
+// Friends Menu Button at the bottom right of the screen, which opens a dropdown with the friends list and details of the selected friend
+export default function FriendsMenuButton() {
     const [openFriendsDropdown, setOpenFriendsDropdown] = useState(false);
     const [selectedFriendId, setSelectedFriendId] = useState<number | null>(
         null,
@@ -25,6 +26,7 @@ export default function FriendsDropdown() {
 
     return (
         <div className="fixed bottom-3 right-3 z-20 flex flex-col items-end space-y-2">
+            {/* The dropdown menus for friends list and friend details are rendered here */}
             <div className="flex flex-col items-end space-y-2 sm:flex-row sm:items-end sm:space-y-0 sm:space-x-2">
                 <div
                     className={`transition-all duration-200 transform ${
@@ -49,6 +51,7 @@ export default function FriendsDropdown() {
                 </div>
             </div>
 
+            {/* The friends dropdown button */}
             <button
                 id="friends-dropdown-btn"
                 className="relative p-3 rounded-lg bg-primary border border-color-border hover:border-gray-500 text-gray-400 hover:text-white shadow-lg transition"

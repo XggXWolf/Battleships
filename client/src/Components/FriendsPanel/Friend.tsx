@@ -9,6 +9,8 @@ interface FriendProps {
     onFriendClick: () => void;
 }
 
+// Individual friend item in the friends list, showing their name, rank, online status, and ELO rating.
+// Clicking on it will open the FriendDetails panel for that friend.
 export default function Friend({
     name,
     rank,

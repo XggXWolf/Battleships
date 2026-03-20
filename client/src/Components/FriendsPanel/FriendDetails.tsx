@@ -4,6 +4,9 @@ interface FriendDetailsProps {
     friendId: number;
 }
 
+// Panel that shows details of a selected friend, such as their ELO rating, online status, and buttons to invite them to a game or remove them from the friends list.
+//  It appears when clicking on a friend in the FriendsDropdownMenu.
+
 export default function FriendDetails({ friendId }: FriendDetailsProps) {
     const friend = dummyFriends.find((f) => f.id === friendId);
 
