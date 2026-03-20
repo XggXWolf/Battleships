@@ -9,7 +9,9 @@ export default function MobileNavButton({
     return (
         <NavLink
             to={redirectTo}
-            className={`block px-3 py-2 rounded-lg text-base font-medium text-white hover:bg-gray-700 ${primary ? "bg-blue-600 hover:bg-blue-700" : ""}`}
+            className={({ isActive }) =>
+                `block px-3 py-2 rounded-lg text-base font-medium text-white ${primary ? "bg-blue-600 hover:bg-blue-700" : isActive ? "bg-blue-900/50 text-blue-300 border border-blue-700/50" : "hover:bg-gray-700"} `
+            }
         >
             {name}
         </NavLink>
