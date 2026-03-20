@@ -19,8 +19,6 @@ export default function GameGrid() {
             className="grow bg-primary p-3 sm:p-4 rounded-xl shadow-lg border border-color-border flex flex-col items-center justify-center min-h-0
     "
         >
-            <h2 className="text-xl font-bold mb-2 text-blue-300">YOUR TURN</h2>
-
             <div id="game-grid-container" className="w-full max-w-xl">
                 <div
                     id="game-grid"

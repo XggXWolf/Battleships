@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import truncateRank from "../../util/truncateRank";
+import TurnIndicator from "./TurnIndicator";
 
 interface PlayerInfoProps {
     type: "player" | "opponent";
@@ -32,6 +34,16 @@ export default function PlayerInfo({ type }: PlayerInfoProps) {
                         ELO: {tempUser.elo}
                     </span>
                 </div>
+
+                {type === "player" && (
+                    <div
+                        id="game-status-container"
+                        className="transition-all duration-300 ease-in-out"
+                    >
+                        {/*TO-DO: Hook with zustand */}
+                        <TurnIndicator currentTurn={"player"} />
+                    </div>
+                )}
             </div>
         </div>
     );
