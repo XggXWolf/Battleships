@@ -8,6 +8,12 @@ import MobileNavDropdownMenu from "./Mobile/MobileNavDropdownMenu";
 import { useLocation } from "react-router";
 
 export default function Header() {
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    const toggleMobileMenu = () => {
+        setIsMobileMenuOpen((prev) => !prev);
+    };
+
     // Close mobile menu when navigating to a new page
     const location = useLocation();
     useEffect(() => {
@@ -23,12 +29,6 @@ export default function Header() {
             setMenuHeight(menuRef.current.scrollHeight);
         }
     }, []);
-
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-    const toggleMobileMenu = () => {
-        setIsMobileMenuOpen((prev) => !prev);
-    };
 
     return (
         <header className="bg-primary shadow-xl border-b border-color-border sticky top-0 z-30">
