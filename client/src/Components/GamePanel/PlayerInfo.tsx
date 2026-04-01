@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
 import truncateRank from "../../util/truncateRank";
 import TurnIndicator from "./TurnIndicator";
 
 interface PlayerInfoProps {
     type: "player" | "opponent";
+    currentTurn?: "player" | "opponent" | null; // null for "Standing By"
+    showTurnIndicator?: boolean;
+    showAddFriendButton?: boolean;
 }
 
 const tempUser = {
@@ -12,7 +14,12 @@ const tempUser = {
     elo: 1500,
 };
 
-export default function PlayerInfo({ type }: PlayerInfoProps) {
+export default function PlayerInfo({
+    type,
+    currentTurn,
+    showTurnIndicator,
+    showAddFriendButton,
+}: PlayerInfoProps) {
     return (
         <div className="bg-primary p-3 rounded-xl shadow-lg border border-color-border shrink-0">
             <div className="flex items-center justify-between flex-wrap gap-2">
@@ -35,14 +42,31 @@ export default function PlayerInfo({ type }: PlayerInfoProps) {
                     </span>
                 </div>
 
-                {type === "player" && (
+                {/* Top container for player, has the turn indicator element for
+                the player. */}
+                {showTurnIndicator && (
                     <div
                         id="game-status-container"
                         className="transition-all duration-300 ease-in-out"
                     >
                         {/*TO-DO: Hook with zustand */}
-                        <TurnIndicator currentTurn={"player"} />
+                        <TurnIndicator currentTurn={currentTurn} />
                     </div>
+                )}
+
+                {/* Bottom container for opponent, has add as friend button. */}
+                {/* TO-DO: Restyle */}
+                {showAddFriendButton && (
+                    <button
+                        className="flex items-center gap-2 px-4 py-1.5 
+                                     bg-gray-900/20 hover:bg-blue-900/40 
+                                     text-blue-400/80 hover:text-blue-400 text-xs font-bold uppercase tracking-wider
+                                     border border-gray-500/30 hover:border-blue-500/60 
+                                     rounded-lg transition-all duration-200 
+                                     active:scale-95 shadow-sm cursor-pointer hover:shadow-[0_0_15px_rgba(59,130,246,0.4)]"
+                    >
+                        Add Friend
+                    </button>
                 )}
             </div>
         </div>

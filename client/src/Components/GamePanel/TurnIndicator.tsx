@@ -2,7 +2,7 @@
 export default function TurnIndicator({
     currentTurn,
 }: {
-    currentTurn?: "player" | "opponent";
+    currentTurn?: "player" | "opponent" | null; // null for "Standing By"
 }) {
     switch (currentTurn) {
         case "player":
