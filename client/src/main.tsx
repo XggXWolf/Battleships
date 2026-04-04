@@ -5,9 +5,10 @@ import { RouterProvider } from "react-router/dom";
 
 import Main from "./Pages/Main/Main.tsx";
 import "./index.css";
-import { Layout } from "./Components/Layout.tsx";
+import { Layout, LayoutWithSonar } from "./Components/Layout.tsx";
 import Leaderboard from "./Pages/Leaderboard/Leaderboard.tsx";
 import Shop from "./Pages/Shop/Shop.tsx";
+import Login from "./Pages/Login/Login.tsx";
 
 const router = createBrowserRouter([
     {
@@ -18,7 +19,13 @@ const router = createBrowserRouter([
             { path: "leaderboard", element: <Leaderboard /> },
             { path: "shop", element: <Shop /> },
             { path: "play", element: <Main /> },
+            { path: "*", element: <Main /> },
         ],
+    },
+    {
+        path: "/login",
+        element: <LayoutWithSonar />,
+        children: [{ index: true, element: <Login /> }],
     },
 ]);
 
