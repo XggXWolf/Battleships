@@ -5,10 +5,12 @@ import Logo from "./Logo";
 import MobileNavMenu from "./Mobile/MobileNavMenu";
 import PlayerInfo from "./PlayerInfo";
 import MobileNavDropdownMenu from "./Mobile/MobileNavDropdownMenu";
-import { useLocation } from "react-router";
+import { NavLink, useLocation } from "react-router";
 
 export default function Header() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    const [isLoggedIn, setIsLoggedIn] = useState(false); // Placeholder for auth state
 
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen((prev) => !prev);
@@ -36,14 +38,28 @@ export default function Header() {
                 <Logo />
                 <div className="right-panel flex items-center">
                     <DesktopNavMenu />
-                    <div className="flex items-center space-x-2 sm:space-x-4 ml-2 md:ml-8">
-                        <PlayerInfo
-                            playerRank={playerData.rank}
-                            playerName={playerData.name}
-                            playerElo={playerData.elo}
-                        />
-                        <MobileNavMenu onClick={toggleMobileMenu} />
-                    </div>
+                    <div className="hidden md:block h-5 w-px bg-gray-700 mx-4"></div>
+
+                    {isLoggedIn ? (
+                        <div className="flex items-center space-x-2 sm:space-x-4 ml-2 md:ml-8">
+                            <PlayerInfo
+                                playerRank={playerData.rank}
+                                playerName={playerData.name}
+                                playerElo={playerData.elo}
+                            />
+                            <MobileNavMenu onClick={toggleMobileMenu} />
+                        </div>
+                    ) : (
+                        <div id="auth-container" className="flex items-center">
+                            <NavLink
+                                to="/login"
+                                id="login-btn"
+                                className="text-sm font-semibold text-gray-400 hover:text-white transition whitespace-nowrap"
+                            >
+                                Login
+                            </NavLink>
+                        </div>
+                    )}
                 </div>
             </div>
 

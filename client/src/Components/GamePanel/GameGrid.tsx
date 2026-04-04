@@ -43,7 +43,7 @@ export default function GameGrid({ currentTurn }: GameGridProps) {
 
     return (
         <div
-            className="grow bg-primary p-3 sm:p-4 rounded-xl shadow-lg border border-color-border flex flex-col items-center justify-center min-h-0 transition-all duration-1000 animate-glow-heartbeat"
+            className="grow bg-primary p-3 sm:p-4 rounded-xl shadow-lg border border-[rgb(var(--glow-rgb))] flex flex-col items-center justify-center min-h-0 transition-all duration-1000 animate-glow-heartbeat"
             style={{ "--glow-rgb": currentGlow.rgb } as React.CSSProperties}
         >
             <div id="game-grid-container" className="w-full max-w-xl">
