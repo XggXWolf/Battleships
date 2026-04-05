@@ -23,9 +23,13 @@ const router = createBrowserRouter([
         ],
     },
     {
-        path: "/login",
+        path: "/",
         element: <Layout sonar={true} />,
-        children: [{ index: true, element: <Login /> }],
+        children: [
+            { path: "login", element: <Login /> },
+            { path: "register", element: <Login /> },
+            { path: "reset-password", element: <Login /> },
+        ],
     },
 ]);
 

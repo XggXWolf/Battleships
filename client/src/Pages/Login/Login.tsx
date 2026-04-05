@@ -1,6 +1,6 @@
 import LoginContainer from "../../Components/LoginPage/LoginContainer/LoginContainer";
-import MiscInfo from "../../Components/LoginPage/MiscInfo/MiscInfo";
-import PlayerCount from "../../Components/LoginPage/PlayerCount/PlayerCount";
+import MiscInfo from "../../Components/Shared/MiscInfo/MiscInfo";
+import PlayerCount from "../../Components/Shared/PlayerCount/PlayerCount";
 import GithubIcon from "../../assets/github.svg";
 
 export default function Login() {

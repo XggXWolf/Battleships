@@ -140,7 +140,7 @@ export default function LoginContainer() {
                             Password
                         </label>
                         <Link
-                            to="/reset-password"
+                            to="/forgot-password"
                             className="text-xs text-blue-400 hover:text-blue-300 font-semibold transition"
                         >
                             Forgot Password?
