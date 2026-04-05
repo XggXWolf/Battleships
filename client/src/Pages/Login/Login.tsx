@@ -1,3 +1,26 @@
+import LoginContainer from "../../Components/LoginPage/LoginContainer";
+import MiscInfo from "../../Components/LoginPage/MiscInfo/MiscInfo";
+import PlayerCount from "../../Components/LoginPage/PlayerCount/PlayerCount";
+import GithubIcon from "../../assets/github.svg";
+
 export default function Login() {
-    return <div>Login</div>;
+    return (
+        <main className="flex-1 flex items-center justify-center px-4 py-12 relative">
+            <div className="w-full max-w-md">
+                <PlayerCount />
+                <LoginContainer />
+                <div className="flex items-center justify-center gap-3 mt-6">
+                    <MiscInfo
+                        text="XggXWolf"
+                        svg={GithubIcon}
+                        onClick={handleGithubClick}
+                    />
+                </div>
+            </div>
+        </main>
+    );
+}
+
+function handleGithubClick() {
+    window.open("https://github.com/XggXWolf", "_blank");
 }
