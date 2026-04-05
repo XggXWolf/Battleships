@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import playerData from "../../data/dummy/player";
+import playerData from "../../../data/dummy/player";
 import DesktopNavMenu from "./Desktop/DesktopNavMenu";
 import Logo from "./Logo";
 import MobileNavMenu from "./Mobile/MobileNavMenu";
@@ -10,7 +10,7 @@ import { NavLink, useLocation } from "react-router";
 export default function Header() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-    const [isLoggedIn, setIsLoggedIn] = useState(false); // Placeholder for auth state
+    const [isLoggedIn, _setIsLoggedIn] = useState(false); // Placeholder for auth state
 
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen((prev) => !prev);

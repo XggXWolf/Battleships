@@ -1,6 +1,6 @@
-import FriendsMenuButton from "../../Components/FriendsPanel/FriendsMenuButton";
-import GamePanel from "../../Components/GamePanel/GamePanel";
-import SidePanel from "../../Components/SidePanel/SidePanel";
+import FriendsMenuButton from "../../Components/MainPage/FriendsPanel/FriendsMenuButton";
+import GamePanel from "../../Components/MainPage/GamePanel/GamePanel";
+import SidePanel from "../../Components/MainPage/SidePanel/SidePanel";
 
 function Main() {
     return (

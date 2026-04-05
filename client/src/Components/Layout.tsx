@@ -1,23 +1,17 @@
 import { Outlet } from "react-router";
-import Header from "./Header/Header";
-import Background from "./Background/Background";
+import Header from "./Shared/Header/Header";
+import Background from "./Shared/Background/Background";
 
-export function Layout() {
-    return (
-        <>
-            <Header />
-            <Outlet />
-            <Background />
-        </>
-    );
+interface LayoutProps {
+    sonar?: boolean;
 }
 
-export function LayoutWithSonar() {
+export function Layout({ sonar = false }: LayoutProps) {
     return (
         <>
             <Header />
             <Outlet />
-            <Background sonar />
+            <Background sonar={sonar} />
         </>
     );
 }

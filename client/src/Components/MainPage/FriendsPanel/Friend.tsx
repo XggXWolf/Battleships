@@ -1,4 +1,4 @@
-import truncateRank from "../../util/truncateRank";
+import truncateRank from "../../../util/truncateRank";
 
 interface FriendProps {
     //TO-DO: Define actual props for Friend component, such as friend name, status, etc.

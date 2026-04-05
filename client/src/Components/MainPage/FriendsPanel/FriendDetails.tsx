@@ -1,4 +1,4 @@
-import dummyFriends from "../../data/dummy/friends";
+import dummyFriends from "../../../data/dummy/friends";
 
 interface FriendDetailsProps {
     friendId: number;

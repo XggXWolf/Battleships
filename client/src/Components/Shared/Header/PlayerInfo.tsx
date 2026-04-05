@@ -1,4 +1,4 @@
-import truncateRank from "../../util/truncateRank";
+import truncateRank from "../../../util/truncateRank";
 
 interface PlayerInfoProps {
     playerName: string;

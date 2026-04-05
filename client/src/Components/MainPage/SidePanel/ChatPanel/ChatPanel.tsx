@@ -1,4 +1,4 @@
-import dummyMessages from "../../../data/dummy/messages";
+import dummyMessages from "../../../../data/dummy/messages";
 import ChatMessage from "./ChatMessage";
 
 export default function ChatPanel() {
