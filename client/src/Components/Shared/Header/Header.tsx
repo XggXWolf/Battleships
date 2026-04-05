@@ -10,7 +10,7 @@ import { NavLink, useLocation } from "react-router";
 export default function Header() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-    const [isLoggedIn, _setIsLoggedIn] = useState(false); // Placeholder for auth state
+    const [isLoggedIn, _setIsLoggedIn] = useState(true); // Placeholder for auth state
 
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen((prev) => !prev);

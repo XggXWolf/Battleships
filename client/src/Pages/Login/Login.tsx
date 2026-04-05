@@ -1,4 +1,4 @@
-import LoginContainer from "../../Components/LoginPage/LoginContainer";
+import LoginContainer from "../../Components/LoginPage/LoginContainer/LoginContainer";
 import MiscInfo from "../../Components/LoginPage/MiscInfo/MiscInfo";
 import PlayerCount from "../../Components/LoginPage/PlayerCount/PlayerCount";
 import GithubIcon from "../../assets/github.svg";

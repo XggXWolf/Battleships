@@ -1,0 +1,98 @@
+/* Card entrance */
+@keyframes cardIn {
+    from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.card-in {
+    animation: cardIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Shimmer on primary button */
+.btn-shimmer::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.08) 50%,
+        transparent 100%
+    );
+    transform: translateX(-100%);
+    transition: transform 0.5s;
+}
+
+.btn-shimmer:hover::before {
+    transform: translateX(100%);
+}
+
+/* Input focus-within icon colour */
+.field-wrap:focus-within .field-icon {
+    color: #2563eb;
+}
+
+/* Input focus ring */
+.field-input:focus {
+    border-color: #2563eb;
+    box-shadow:
+        0 0 0 3px rgba(37, 99, 235, 0.18),
+        0 0 20px rgba(37, 99, 235, 0.08);
+    outline: none;
+}
+
+/* Checkbox */
+.custom-check input[type="checkbox"] {
+    display: none;
+}
+
+.custom-check input[type="checkbox"]:checked ~ .check-box {
+    background: #2563eb;
+    border-color: #2563eb;
+}
+
+.custom-check .check-box svg {
+    display: none;
+}
+
+.custom-check input[type="checkbox"]:checked ~ .check-box svg {
+    display: block;
+}
+
+/* Divider lines */
+.divider::before,
+.divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #30363d;
+}
+
+/* Shake */
+@keyframes shake {
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    20%,
+    60% {
+        transform: translateX(-6px);
+    }
+
+    40%,
+    80% {
+        transform: translateX(6px);
+    }
+}
+
+.shake {
+    animation: shake 0.4s ease;
+}
