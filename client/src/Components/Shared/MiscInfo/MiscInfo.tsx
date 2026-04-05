@@ -9,7 +9,7 @@ interface MiscInfoProps {
 export default function MiscInfo({ text, svg, onClick }: MiscInfoProps) {
     return (
         <div
-            className={`info-badge flex items-center gap-1 
+            className={`info-badge flex items-center gap-1 mb-5
                 ${
                     onClick &&
                     `

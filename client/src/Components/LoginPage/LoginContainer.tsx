@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import ErrorMessage from "../../Shared/ErrorMessage";
-import "./LoginContainer.css";
-import googleIcon from "../../../assets/google.svg";
 import { Link } from "react-router";
+
+import ErrorMessage from "../Shared/ErrorMessage";
+import FormLogo from "../Shared/Form/FormLogo";
+import "../Shared/Form/Form.css";
+import GoogleSignIn from "../Shared/Form/GoogleSignIn";
 
 interface LoginFormData {
     username: string; // or email
@@ -65,21 +67,7 @@ export default function LoginContainer() {
         <div className="card-in bg-primary border border-color-border rounded-2xl p-8 shadow-[0_0_0_1px_rgba(37,99,235,0.08),0_32px_80px_rgba(0,0,0,0.6),0_0_60px_rgba(37,99,235,0.06)]">
             {/* Logo & Heading */}
             <div className="text-center mb-8">
-                <div className="w-14 h-14 rounded-2xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center mx-auto mb-4 shadow-[0_0_30px_rgba(37,99,235,0.15)]">
-                    <svg
-                        className="w-7 h-7 text-blue-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        strokeWidth="1.8"
-                    >
-                        <circle cx="12" cy="5" r="2"></circle>
-                        <line x1="12" y1="7" x2="12" y2="19"></line>
-                        <path d="M5 12H3a9 9 0 0 0 18 0h-2"></path>
-                        <line x1="5" y1="12" x2="12" y2="19"></line>
-                        <line x1="19" y1="12" x2="12" y2="19"></line>
-                    </svg>
-                </div>
+                <FormLogo rotate={0} />
 
                 <h1 className="text-2xl font-black tracking-tight text-white mb-1">
                     Sign In
@@ -140,7 +128,7 @@ export default function LoginContainer() {
                             Password
                         </label>
                         <Link
-                            to="/forgot-password"
+                            to="/reset-password"
                             className="text-xs text-blue-400 hover:text-blue-300 font-semibold transition"
                         >
                             Forgot Password?
@@ -257,16 +245,12 @@ export default function LoginContainer() {
             </div>
 
             {/* Google Sign-In Button */}
-            <button className="flex items-center justify-center gap-3 w-full py-3 bg-root text-gray-200 font-medium text-sm tracking-wide rounded-[10px] border border-color-border hover:border-[#8b949e] hover:bg-primary cursor-pointer transition-all shadow-sm">
-                <img src={googleIcon} alt="Google" className="w-4 h-4" />
-                <span>Sign in with Google</span>
-            </button>
-
+            <GoogleSignIn />
             {/* Sign-Up Link */}
             <p className="text-center text-xs text-gray-500 mt-6">
                 Don't have an account?
                 <Link
-                    to="/signup"
+                    to="/register"
                     className="text-blue-400 hover:text-blue-300 font-semibold transition ml-1"
                 >
                     Sign Up →

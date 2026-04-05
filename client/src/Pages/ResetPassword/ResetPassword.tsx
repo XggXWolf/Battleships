@@ -1,14 +1,14 @@
-import LoginContainer from "../../Components/LoginPage/LoginContainer";
+import ResetPasswordContainer from "../../Components/ResetPasswordPage/ResetPasswordContainer";
 import MiscInfo from "../../Components/Shared/MiscInfo/MiscInfo";
 import PlayerCount from "../../Components/Shared/PlayerCount/PlayerCount";
 import GithubIcon from "../../assets/github.svg";
 
-export default function Login() {
+export default function ResetPassword() {
     return (
-        <main className="flex-1 flex items-center justify-center px-4 py-12 relative">
+        <main className="flex-1 flex items-center justify-center px-4 py-12 relative min-h-screen w-full p-4 overflow-y-auto">
             <div className="w-full max-w-md">
                 <PlayerCount />
-                <LoginContainer />
+                <ResetPasswordContainer />
                 <div className="flex items-center justify-center gap-3 mt-6">
                     <MiscInfo
                         text="XggXWolf"

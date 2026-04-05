@@ -9,6 +9,8 @@ import { Layout } from "./Components/Layout.tsx";
 import Leaderboard from "./Pages/Leaderboard/Leaderboard.tsx";
 import Shop from "./Pages/Shop/Shop.tsx";
 import Login from "./Pages/Login/Login.tsx";
+import Register from "./Pages/Register/Register.tsx";
+import ResetPassword from "./Pages/ResetPassword/ResetPassword.tsx";
 
 const router = createBrowserRouter([
     {
@@ -27,8 +29,8 @@ const router = createBrowserRouter([
         element: <Layout sonar={true} />,
         children: [
             { path: "login", element: <Login /> },
-            { path: "register", element: <Login /> },
-            { path: "reset-password", element: <Login /> },
+            { path: "register", element: <Register /> },
+            { path: "reset-password", element: <ResetPassword /> },
         ],
     },
 ]);
