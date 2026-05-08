@@ -64,7 +64,7 @@ importers:
         specifier: ^30.0.0
         version: 30.0.0
       '@types/node':
-        specifier: ^22.19.18
+        specifier: 22.19.18
         version: 22.19.18
       '@types/pg':
         specifier: ^8.20.0
