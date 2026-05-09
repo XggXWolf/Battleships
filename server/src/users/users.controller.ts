@@ -29,18 +29,24 @@ export class UsersController {
     return this.usersService.findMany(PaginationDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  @Get(':identifier')
+  findOne(
+    @Param('identifier') identifier: string,
+    @Query('extend') extend?: string,
+  ) {
+    return this.usersService.findOne(identifier, extend);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  @Patch(':identifier')
+  update(
+    @Param('identifier') identifier: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    return this.usersService.update(identifier, updateUserDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  @Delete(':identifier')
+  remove(@Param('identifier') identifier: string) {
+    return this.usersService.remove(identifier);
   }
 }

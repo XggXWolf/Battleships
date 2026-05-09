@@ -17,5 +17,5 @@ export class PaginationDto {
 
   @IsOptional()
   @IsString()
-  extend?: string; // This will receive elo and type if requested by the client
+  extend?: string; // This will receive elo, type and email if requested by the client
 }
