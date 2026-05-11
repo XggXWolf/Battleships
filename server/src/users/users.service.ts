@@ -9,14 +9,13 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
 import { PaginationDto } from './dto/pagination.dto';
-import { isMongoId } from 'class-validator';
 import {
   buildUserQuery,
   buildUserSelect,
   parseExtensions,
 } from './users.helper';
 
-// TO-DO: Prevent user from updating their own type and elo : DONE with whitelisted validation pipe in main.ts
+// TO-DO: Prevent user from updating their own role and elo : DONE with whitelisted validation pipe in main.ts
 // or at least make sure they can't set them to values that are not allowed.
 // Also, add validation to the create and update DTOs to ensure that the data being sent by the client is valid and meets the required criteria
 // (e.g., email format, password strength, etc.).
@@ -64,7 +63,7 @@ export class UsersService {
           id: true,
           nickname: true,
           elo: true,
-          type: true,
+          role: true,
           email: true,
         },
       });
@@ -80,7 +79,7 @@ export class UsersService {
   }
 
   // Retrieves a list of users from the database with pagination support.
-  async findMany({ limit, offset, extend }: PaginationDto) {
+  async findMany({ limit, offset, extend }: PaginationDto, role: string) {
     // Determine which additional fields to retrieve based on the 'extend' query parameter
     const extensions = parseExtensions(extend);
 
@@ -137,7 +136,7 @@ export class UsersService {
           id: true,
           nickname: true,
           elo: true,
-          type: true,
+          role: true,
           email: true,
         },
       });

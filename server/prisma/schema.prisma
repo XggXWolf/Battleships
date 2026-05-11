@@ -20,5 +20,5 @@ model User {
   email    String @unique
   password String
   elo      Int    @default(1000)
-  type     String @default("user")
+  role     String @default("user")
 }

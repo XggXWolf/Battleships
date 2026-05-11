@@ -7,26 +7,40 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
+  Req,
+  UnauthorizedException,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PaginationDto } from './dto/pagination.dto';
+import { AuthenticationGuard } from '../guards/authentication.guard';
+import { AuthorizationGuard } from '../guards/authorization.guard';
+import { Roles } from '../decorators/roles.decorator';
 
+@Roles(['admin', 'user']) // Default roles for all routes in this controller, can be overridden by specific routes
+@UseGuards(AuthenticationGuard, AuthorizationGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  // TO-DO: Delete this endpoint after testing and move the create method to AuthController
+  /** Creates a new user in the database. This endpoint is protected and can only be accessed by users with the 'admin' role.
+  For sign-up, use the /auth/register endpoint instead, which is public and does not require authentication. */
+  @Roles(['admin'])
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
-  // TO-DO: GUARDS!
   @Get()
-  findMany(@Query() PaginationDto: PaginationDto) {
-    return this.usersService.findMany(PaginationDto);
+  findMany(@Req() { user }: Request, @Query() PaginationDto: PaginationDto) {
+    if (!user) {
+      throw new UnauthorizedException('Unauthorized');
+    }
+
+    return this.usersService.findMany(PaginationDto, user.role || 'user');
   }
 
   @Get(':identifier')
@@ -45,6 +59,7 @@ export class UsersController {
     return this.usersService.update(identifier, updateUserDto);
   }
 
+  @Roles(['admin'])
   @Delete(':identifier')
   remove(@Param('identifier') identifier: string) {
     return this.usersService.remove(identifier);
