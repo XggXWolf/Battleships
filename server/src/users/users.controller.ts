@@ -10,6 +10,7 @@ import {
   UseGuards,
   Req,
   UnauthorizedException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { UsersService } from './users.service';
@@ -45,17 +46,37 @@ export class UsersController {
 
   @Get(':identifier')
   findOne(
+    @Req() { user }: Request,
     @Param('identifier') identifier: string,
     @Query('extend') extend?: string,
   ) {
-    return this.usersService.findOne(identifier, extend);
+    if (!user) {
+      throw new UnauthorizedException('Unauthorized');
+    }
+
+    return this.usersService.findOne(identifier, user.role || 'user', extend);
   }
 
+  // TO-DO: JWT should include id and nickname
   @Patch(':identifier')
   update(
+    @Req() { user }: Request,
     @Param('identifier') identifier: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
+    const isSelf = identifier === user!.id || identifier === user!.nickname;
+    const isAdmin = user!.role === 'admin';
+
+    if (!isAdmin && !isSelf) {
+      throw new ForbiddenException('You can only update your own profile');
+    }
+
+    // Regular users cannot change their role, or elo
+    if (!isAdmin) {
+      delete updateUserDto.role;
+      delete updateUserDto.elo;
+    }
+
     return this.usersService.update(identifier, updateUserDto);
   }
 

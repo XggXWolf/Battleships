@@ -1,6 +1,7 @@
 import {
   CanActivate,
   ExecutionContext,
+  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -32,7 +33,7 @@ export class AuthorizationGuard implements CanActivate {
 
     // Check if the user's role is included in the required roles for the route
     if (!requiredRoles.includes(userRole)) {
-      throw new UnauthorizedException('Unauthorized');
+      throw new ForbiddenException('Forbidden');
     }
 
     return true;
