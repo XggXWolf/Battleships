@@ -1,5 +1,5 @@
+import { LoginDto } from './login.dto';
 import {
-  IsEmail,
   IsNotEmpty,
   IsString,
   IsStrongPassword,
@@ -7,7 +7,12 @@ import {
   Matches,
 } from 'class-validator';
 
-export class CreateUserDto {
+export class RegisterDto extends LoginDto {
+  @IsString()
+  @IsNotEmpty()
+  @IsStrongPassword()
+  declare password: string;
+
   @IsString()
   @Length(3, 14)
   @IsNotEmpty()
@@ -16,21 +21,4 @@ export class CreateUserDto {
       'Nickname can only contain letters, numbers, and underscores, and no spaces',
   })
   nickname!: string;
-
-  @IsEmail()
-  @IsNotEmpty()
-  email!: string;
-
-  @IsString()
-  @IsStrongPassword()
-  @IsNotEmpty()
-  password!: string;
-
-  @IsString()
-  @IsNotEmpty()
-  provider!: string;
-
-  @IsString()
-  @IsNotEmpty()
-  providerId!: string;
 }

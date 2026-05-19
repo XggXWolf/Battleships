@@ -3,6 +3,7 @@ import { isMongoId } from 'class-validator';
 const VALID_EXTENSIONS = ['elo', 'role', 'email'] as const;
 
 const ROLE_EXTEND_PERMS: Record<string, readonly Extension[]> = {
+  internal: ['elo', 'role', 'email'],
   admin: ['elo', 'role', 'email'],
   user: ['elo', 'role'],
 } as const;
@@ -36,6 +37,7 @@ export function buildUserSelect(extensions: Extension[]) {
   return {
     id: true,
     nickname: true,
+    isProfileComplete: true,
     ...(extensions.includes('elo') && { elo: true }),
     ...(extensions.includes('role') && { role: true }),
     ...(extensions.includes('email') && { email: true }),

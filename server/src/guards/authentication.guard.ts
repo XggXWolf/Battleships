@@ -16,20 +16,17 @@ export class AuthenticationGuard implements CanActivate {
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest();
 
-    // Extract the token from the Authorization header
     const token = request.headers['authorization']?.split(' ')[1];
 
-    // Throw an exception if no token is provided
     if (!token) {
       throw new UnauthorizedException('Unauthorized');
     }
 
     try {
-      // Verify the token and extract the user information
       const decoded = this.jwtService.verify(token);
-      request.user = decoded; // Attach the user information to the request object
+      request.user = decoded;
 
-      return true; // Return true if the user is authenticated
+      return true;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unauthorized';
       throw new UnauthorizedException('Unauthorized', message);

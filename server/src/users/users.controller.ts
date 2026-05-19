@@ -57,14 +57,13 @@ export class UsersController {
     return this.usersService.findOne(identifier, user.role || 'user', extend);
   }
 
-  // TO-DO: JWT should include id and nickname
   @Patch(':identifier')
   update(
     @Req() { user }: Request,
     @Param('identifier') identifier: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    const isSelf = identifier === user!.id || identifier === user!.nickname;
+    const isSelf = identifier === user!.sub || identifier === user!.nickname;
     const isAdmin = user!.role === 'admin';
 
     if (!isAdmin && !isSelf) {
