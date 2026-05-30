@@ -36,11 +36,11 @@ const PUBLIC_USER_SELECT = {
   isProfileComplete: true,
 } as const;
 
+const DUMMY_HASH = '$2a$10$CwTycUXWue0Thq9StjUM0uJ8GryuVYJFA9qv1n5yH9iY7vHne'; // dummy bcrpyt hash for timing attack mitigation
+
 @Injectable()
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
-
-  DUMMY_HASH = '$2a$10$CwTycUXWue0Thq9StjUM0uJ8GryuVYJFA9qv1n5yH9iY7vHne'; // dummy bcrpyt hash for timing attack mitigation
 
   private hashPassword(password: string): Promise<string> {
     // bcrypt recommendation for interactive logins, increase for sensitive data
@@ -206,7 +206,7 @@ export class UsersService {
     password: string,
   ): Promise<Omit<InternalUser, 'password'> | null> {
     const user = await this.findOneInternal(email);
-    const hashToCompare = user?.password ?? this.DUMMY_HASH;
+    const hashToCompare = user?.password ?? DUMMY_HASH;
 
     const isValid = await bcrypt.compare(password, hashToCompare);
 
