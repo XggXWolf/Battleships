@@ -8,6 +8,10 @@ import { UsersModule } from './users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from './auth/auth.module';
 import googleOauthConfig from './auth/config/google-oauth.config';
+import { APP_GUARD } from '@nestjs/core';
+import { ProfileCompleteGuard } from './guards/profile-complete.guard';
+import { AuthenticationGuard } from './guards/authentication.guard';
+import { AuthorizationGuard } from './guards/authorization.guard';
 
 @Module({
   imports: [
@@ -24,6 +28,12 @@ import googleOauthConfig from './auth/config/google-oauth.config';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaService],
+  providers: [
+    AppService,
+    PrismaService,
+    { provide: APP_GUARD, useClass: AuthenticationGuard },
+    { provide: APP_GUARD, useClass: AuthorizationGuard },
+    { provide: APP_GUARD, useClass: ProfileCompleteGuard },
+  ],
 })
 export class AppModule {}

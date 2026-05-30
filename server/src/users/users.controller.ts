@@ -22,7 +22,6 @@ import { AuthorizationGuard } from '../guards/authorization.guard';
 import { Roles } from '../decorators/roles.decorator';
 
 @Roles(['admin', 'user']) // Default roles for all routes in this controller, can be overridden by specific routes
-@UseGuards(AuthenticationGuard, AuthorizationGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
