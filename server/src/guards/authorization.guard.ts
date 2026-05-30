@@ -16,6 +16,16 @@ export class AuthorizationGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
+    // We dont need authorization if there is no authentication.
+    const skipAuth = this.reflector.getAllAndOverride<boolean>('skipAuth', [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
+    if (skipAuth) {
+      return true;
+    }
+
     const request = context.switchToHttp().getRequest();
     const user = request.user;
     if (!user) {
