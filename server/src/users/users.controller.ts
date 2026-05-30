@@ -17,8 +17,7 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PaginationDto } from './dto/pagination.dto';
-import { AuthenticationGuard } from '../guards/authentication.guard';
-import { AuthorizationGuard } from '../guards/authorization.guard';
+
 import { Roles } from '../decorators/roles.decorator';
 
 @Roles(['admin', 'user']) // Default roles for all routes in this controller, can be overridden by specific routes
