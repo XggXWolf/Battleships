@@ -46,7 +46,7 @@ export class AuthController {
       isProfileComplete: user.isProfileComplete,
     });
     return res.redirect(
-      `${process.env.FRONTEND_URL}/oauth-success?token=${{ access_token: token }}`,
+      `${process.env.FRONTEND_URL}/oauth-success?token=${token}`,
     );
   }
 }
