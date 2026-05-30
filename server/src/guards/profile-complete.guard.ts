@@ -30,7 +30,7 @@ export class ProfileCompleteGuard implements CanActivate {
 
     const user = context.switchToHttp().getRequest().user;
 
-    if (!user.isProfileComplete) {
+    if (!user || !user.isProfileComplete) {
       throw new ForbiddenException('Profile is not complete');
     }
     return true;
