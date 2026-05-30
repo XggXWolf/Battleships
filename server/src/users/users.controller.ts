@@ -18,6 +18,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { Roles } from '../decorators/roles.decorator';
 import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
+import { SkipProfileCheck } from '../decorators/skip-profile-check.decorator';
+import { CompleteProfileDto } from './dto/complete-profile.dto';
 
 @Roles(['admin', 'user']) // Default roles for all routes in this controller, can be overridden by specific routes
 @Controller('users')
@@ -80,6 +82,12 @@ export class UsersController {
     @Body() adminUpdateUserDto: AdminUpdateUserDto,
   ) {
     return this.usersService.update(identifier, adminUpdateUserDto);
+  }
+
+  @SkipProfileCheck()
+  @Patch(':identifier/complete-profile')
+  completeProfile(@Req() { user }: Request, @Body() dto: CompleteProfileDto) {
+    return this.usersService.completeProfile(user!.sub!, dto.nickname);
   }
 
   @Roles(['admin'])
