@@ -85,7 +85,7 @@ export class UsersController {
   }
 
   @SkipProfileCheck()
-  @Patch('complete-profile')
+  @Patch('me/complete-profile')
   completeProfile(@Req() { user }: Request, @Body() dto: CompleteProfileDto) {
     return this.usersService.completeProfile(user!.sub!, dto.nickname);
   }
