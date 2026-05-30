@@ -40,6 +40,8 @@ const PUBLIC_USER_SELECT = {
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
+  DUMMY_HASH = '$2a$10$CwTycUXWue0Thq9StjUM0uJ8GryuVYJFA9qv1n5yH9iY7vHne'; // dummy bcrpyt hash for timing attack mitigation
+
   private hashPassword(password: string): Promise<string> {
     // bcrypt recommendation for interactive logins, increase for sensitive data
     const saltRounds = 10;
@@ -204,12 +206,13 @@ export class UsersService {
     password: string,
   ): Promise<Omit<InternalUser, 'password'> | null> {
     const user = await this.findOneInternal(email);
+    const hashToCompare = user?.password ?? this.DUMMY_HASH;
 
-    // No password for oauth users or user not found
-    if (!user || !user.password) return null;
+    const isValid = await bcrypt.compare(password, hashToCompare);
 
-    const isValid = await bcrypt.compare(password, user.password);
-    return isValid ? user : null;
+    // Always run bcrypt to prevent timing attacks, but reject if user not found or is an OAuth user
+    if (!user || !user.password || !isValid) return null;
+    return user;
   }
 
   async update(

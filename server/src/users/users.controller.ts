@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   Query,
-  UseGuards,
   Req,
   UnauthorizedException,
   ForbiddenException,
@@ -18,6 +17,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { Roles } from '../decorators/roles.decorator';
+import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
 
 @Roles(['admin', 'user']) // Default roles for all routes in this controller, can be overridden by specific routes
 @Controller('users')
@@ -68,12 +68,18 @@ export class UsersController {
     }
 
     // Regular users cannot change their role, or elo
-    if (!isAdmin) {
-      delete updateUserDto.role;
-      delete updateUserDto.elo;
-    }
+    // FIXED: Seperated Admin and User update dtos and endpoints
 
     return this.usersService.update(identifier, updateUserDto);
+  }
+
+  @Roles(['admin'])
+  @Patch(':identifier/admin')
+  adminUpdate(
+    @Param('identifier') identifier: string,
+    @Body() adminUpdateUserDto: AdminUpdateUserDto,
+  ) {
+    return this.usersService.update(identifier, adminUpdateUserDto);
   }
 
   @Roles(['admin'])
