@@ -3,15 +3,10 @@
     "version": "1.0.0",
     "license": "CC-BY-NC-4.0",
     "private": true,
-    "workspaces": [
-        "client",
-        "server",
-        "shared"
-    ],
     "scripts": {
-        "dev:client": "npm run dev --workspace client",
-        "dev:server": "npm run start:dev --workspace server",
-        "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\""
+        "dev:client": "pnpm --filter client run dev",
+        "dev:server": "pnpm --filter server run start:dev",
+        "dev": "concurrently \"pnpm run dev:client\" \"pnpm run dev:server\""
     },
     "devDependencies": {
         "concurrently": "^9.2.1"
@@ -20,5 +15,9 @@
         "class-transformer": "^0.5.1",
         "class-validator": "^0.15.1",
         "react-router": "^7.13.1"
+    },
+    "engines": {
+        "npm": "please-use-pnpm",
+        "pnpm": ">=9"
     }
 }

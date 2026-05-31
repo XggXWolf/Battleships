@@ -13,6 +13,8 @@ interface LoginFormData {
     rememberMe: boolean;
 }
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
 export default function LoginContainer() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
@@ -32,7 +34,7 @@ export default function LoginContainer() {
 
         try {
             // Api not implemented yet
-            const res = await fetch("/api/auth/login", {
+            const res = await fetch(`${BACKEND_URL}/auth/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data),
@@ -43,6 +45,7 @@ export default function LoginContainer() {
                 setError(body.message || "Login failed. Please try again.");
             }
         } catch (err) {
+            console.error("Login error:", err);
             setError("An error occurred while logging in.");
         } finally {
             setLoading(false);
