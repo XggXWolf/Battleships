@@ -34,7 +34,7 @@ export class AuthService {
     return { access_token: token };
   }
 
-  async generateJwtToken(user: {
+  generateJwtToken(user: {
     id: string;
     nickname: string;
     role: string;

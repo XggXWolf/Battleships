@@ -28,6 +28,7 @@ export class AuthController {
     return await this.authService.registerUserLocal(registerDto);
   }
 
+  // Passport handles the route on its own, it just needs to exist
   @UseGuards(AuthGuard('google'))
   @Get('google/login')
   googleLogin() {}
@@ -40,7 +41,7 @@ export class AuthController {
     }
 
     const token = await this.authService.generateJwtToken({
-      id: user.id,
+      id: user.sub,
       nickname: user.nickname,
       role: user.role,
       isProfileComplete: user.isProfileComplete,

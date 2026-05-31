@@ -9,32 +9,33 @@ import "../Shared/Form/Form.css";
 import GoogleSignIn from "../Shared/Form/GoogleSignIn";
 
 interface RegisterFormData {
-    username: string;
+    nickname: string;
     email: string;
     password: string;
     acceptTerms: boolean;
 }
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function RegisterContainer() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
-    // Initialize react-hook-form
     const {
         register,
         handleSubmit,
         formState: { errors },
     } = useForm<RegisterFormData>();
 
-    // Handle form submission
     const onSubmit = async (data: RegisterFormData) => {
         setLoading(true);
         setError("");
 
+        console.log("Form Data:", data); // Debug: Log form data before sending
         try {
             // Api not implemented yet
-            const res = await fetch("/api/auth/register", {
+            const res = await fetch(`${BACKEND_URL}/auth/register`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data),
@@ -42,9 +43,12 @@ export default function RegisterContainer() {
 
             if (!res.ok) {
                 const body = await res.json();
-                setError(
-                    body.message || "Registration failed. Please try again.",
-                );
+
+                // body.message is an array when it comes from class-validator, but it can also be a string for other types of errors. Handle both cases.
+                const message = Array.isArray(body.message)
+                    ? body.message[0]
+                    : body.message;
+                setError(message || "Registration failed. Please try again.");
             }
         } catch (err) {
             setError("An error occurred while registering.");
@@ -53,7 +57,6 @@ export default function RegisterContainer() {
         }
     };
 
-    // Determine which error message to display (validation vs API error)
     const getDisplayError = () => {
         // 1. Check for API error first
         if (error !== "") return error;
@@ -94,20 +97,20 @@ export default function RegisterContainer() {
 
             {/* Login Form */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                {/* Username Field */}
+                {/* Nickname Field */}
                 <div>
                     <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
-                        Username
+                        Nickname
                     </label>
                     <div className="field-wrap relative">
                         <input
                             className="field-input w-full bg-root border border-color-border rounded-[10px] py-3 pl-11 pr-4 text-sm text-[#e6edf3] placeholder-[#484f58] transition-colors"
-                            id="username"
+                            id="nickname"
                             type="text"
-                            placeholder="Enter your username"
-                            autoComplete="username"
-                            {...register("username", {
-                                required: "Username is required",
+                            placeholder="Enter your nickname"
+                            autoComplete="nickname"
+                            {...register("nickname", {
+                                required: "nickname is required",
                             })}
                         />
                         <span className="field-icon absolute left-3.5 top-1/2 -translate-y-1/2 text-[#484f58] pointer-events-none transition-colors">

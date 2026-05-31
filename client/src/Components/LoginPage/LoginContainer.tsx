@@ -8,9 +8,9 @@ import "../Shared/Form/Form.css";
 import GoogleSignIn from "../Shared/Form/GoogleSignIn";
 
 interface LoginFormData {
-    username: string; // or email
+    email: string; // or email
     password: string;
-    rememberMe: boolean;
+    rememberMe?: boolean;
 }
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -31,6 +31,8 @@ export default function LoginContainer() {
     const onSubmit = async (data: LoginFormData) => {
         setLoading(true);
         setError("");
+
+        console.log("Submitting login form with data:", data);
 
         try {
             // Api not implemented yet
@@ -93,20 +95,20 @@ export default function LoginContainer() {
 
             {/* Login Form */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                {/* Username Field */}
+                {/* Email Field */}
                 <div>
                     <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
-                        Username
+                        Email
                     </label>
                     <div className="field-wrap relative">
                         <input
                             className="field-input w-full bg-root border border-color-border rounded-[10px] py-3 pl-11 pr-4 text-sm text-[#e6edf3] placeholder-[#484f58] transition-colors"
-                            id="username"
+                            id="email"
                             type="text"
-                            placeholder="Enter your username"
-                            autoComplete="username"
-                            {...register("username", {
-                                required: "Username is required",
+                            placeholder="Enter your email"
+                            autoComplete="email"
+                            {...register("email", {
+                                required: "Email is required",
                             })}
                         />
                         <span className="field-icon absolute left-3.5 top-1/2 -translate-y-1/2 text-[#484f58] pointer-events-none transition-colors">
@@ -117,8 +119,14 @@ export default function LoginContainer() {
                                 viewBox="0 0 24 24"
                                 strokeWidth="2"
                             >
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
+                                <rect
+                                    x="2"
+                                    y="4"
+                                    width="20"
+                                    height="16"
+                                    rx="2"
+                                />
+                                <polyline points="2,4 12,13 22,4" fill="none" />
                             </svg>
                         </span>
                     </div>
