@@ -41,11 +41,20 @@ export default function LoginContainer() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data),
             });
+            const body = await res.json();
 
             if (!res.ok) {
-                const body = await res.json();
-                setError(body.message || "Login failed. Please try again.");
+                // body.message is an array when it comes from class-validator, but it can also be a string for other types of errors. Handle both cases.
+                const message = Array.isArray(body.message)
+                    ? body.message[0]
+                    : body.message;
+                setError(message || "Registration failed. Please try again.");
+                return;
             }
+
+            localStorage.setItem("access_token", body.access_token);
+            localStorage.setItem("user", JSON.stringify(body.user));
+            //window.location.href = "/";
         } catch (err) {
             console.error("Login error:", err);
             setError("An error occurred while logging in.");

@@ -20,7 +20,7 @@ export class AuthService {
 
     const token = this.generateJwtToken(user);
 
-    return { access_token: token };
+    return { access_token: token, user: user };
   }
 
   async registerUserLocal(registerDto: RegisterDto) {
@@ -31,7 +31,7 @@ export class AuthService {
     });
 
     const token = this.generateJwtToken(user);
-    return { access_token: token };
+    return { access_token: token, user: user };
   }
 
   generateJwtToken(user: {

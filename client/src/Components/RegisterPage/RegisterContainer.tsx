@@ -34,22 +34,26 @@ export default function RegisterContainer() {
 
         console.log("Form Data:", data); // Debug: Log form data before sending
         try {
-            // Api not implemented yet
             const res = await fetch(`${BACKEND_URL}/auth/register`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data),
             });
 
-            if (!res.ok) {
-                const body = await res.json();
+            const body = await res.json();
 
+            if (!res.ok) {
                 // body.message is an array when it comes from class-validator, but it can also be a string for other types of errors. Handle both cases.
                 const message = Array.isArray(body.message)
                     ? body.message[0]
                     : body.message;
                 setError(message || "Registration failed. Please try again.");
+                return;
             }
+
+            localStorage.setItem("access_token", body.access_token);
+            localStorage.setItem("user", JSON.stringify(body.user));
+            //window.location.href = "/";
         } catch (err) {
             setError("An error occurred while registering.");
         } finally {

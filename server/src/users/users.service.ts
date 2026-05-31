@@ -24,7 +24,13 @@ type PublicUser = Pick<
 >;
 type InternalUser = Pick<
   User,
-  'id' | 'email' | 'nickname' | 'password' | 'role' | 'isProfileComplete'
+  | 'id'
+  | 'email'
+  | 'nickname'
+  | 'password'
+  | 'role'
+  | 'isProfileComplete'
+  | 'elo'
 >;
 
 const PUBLIC_USER_SELECT = {
@@ -159,6 +165,7 @@ export class UsersService {
         password: true,
         role: true,
         isProfileComplete: true,
+        elo: true,
       },
     });
 
