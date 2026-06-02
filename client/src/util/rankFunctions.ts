@@ -7,10 +7,21 @@ const rankMap: Record<string, string> = {
     Admiral: "ADM",
     Sealord: "SL",
 
-    Moderator: "MOD",
-    Administrator: "ADMIN",
+    admin: "ADMIN",
 };
 export function truncateRank(rank: string): string {
+    // TO-DO:
+    // Kinda messy, fix later
+    let user = localStorage.getItem("user");
+    if (user) {
+        let userParsed = JSON.parse(user);
+        let isAdmin = userParsed.role === "admin";
+
+        if (isAdmin) {
+            return rankMap["admin"];
+        }
+    }
+
     return rankMap[rank] ?? rank;
 }
 
