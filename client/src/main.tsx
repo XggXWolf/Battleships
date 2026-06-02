@@ -83,7 +83,7 @@ async function fetchUserData() {
 
     if (res.ok) {
         const data = await res.json();
-        console.log("User data:", data);
+        localStorage.setItem("user", JSON.stringify(data));
     }
 }
 
