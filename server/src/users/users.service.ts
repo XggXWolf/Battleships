@@ -154,6 +154,19 @@ export class UsersService {
     return user;
   }
 
+  async findMe(userId: string): Promise<PublicUser> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: PUBLIC_USER_SELECT,
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
+  }
+
   // Internal method without error handling, used for authentication where we need the password hash
   private async findOneInternal(email: string): Promise<InternalUser | null> {
     const user = await this.prisma.user.findUnique({
@@ -211,7 +224,7 @@ export class UsersService {
   async validateCredentials(
     email: string,
     password: string,
-  ): Promise<Omit<InternalUser, 'password'> | null> {
+  ): Promise<PublicUser | null> {
     const user = await this.findOneInternal(email);
     const hashToCompare = user?.password ?? DUMMY_HASH;
 
@@ -219,7 +232,8 @@ export class UsersService {
 
     // Always run bcrypt to prevent timing attacks, but reject if user not found or is an OAuth user
     if (!user || !user.password || !isValid) return null;
-    return user;
+    const { password: _, ...strippedUser } = user;
+    return strippedUser;
   }
 
   async update(

@@ -1,16 +1,34 @@
 import { useEffect, useRef, useState } from "react";
-import playerData from "../../../data/dummy/player";
 import DesktopNavMenu from "./Desktop/DesktopNavMenu";
 import Logo from "./Logo";
 import MobileNavMenu from "./Mobile/MobileNavMenu";
 import PlayerInfo from "./PlayerInfo";
 import MobileNavDropdownMenu from "./Mobile/MobileNavDropdownMenu";
 import { NavLink, useLocation } from "react-router";
+import { isTokenExpired } from "../../../util/authFunctions";
+import type { PlayerData } from "../../../types/playerData";
+import { getRankFromElo } from "../../../util/rankFunctions";
 
 export default function Header() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-    const [isLoggedIn, _setIsLoggedIn] = useState(false); // Placeholder for auth state
+    const [isLoggedIn, setIsLoggedIn] = useState(false); // Placeholder for auth state
+    const [playerData, setPlayerData] = useState<PlayerData>({} as PlayerData);
+
+    useEffect(() => {
+        if (isTokenExpired()) {
+            localStorage.clear();
+            setIsLoggedIn(false);
+            return;
+        }
+
+        const storedPlayerData = localStorage.getItem("user");
+        if (storedPlayerData) {
+            setPlayerData(JSON.parse(storedPlayerData));
+        }
+
+        setIsLoggedIn(true);
+    }, []);
 
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen((prev) => !prev);
@@ -43,8 +61,8 @@ export default function Header() {
                     {isLoggedIn ? (
                         <div className="flex items-center space-x-2 sm:space-x-4 ml-2 md:ml-8">
                             <PlayerInfo
-                                playerRank={playerData.rank}
-                                playerName={playerData.name}
+                                playerRank={getRankFromElo(playerData.elo)}
+                                playerName={playerData.nickname}
                                 playerElo={playerData.elo}
                             />
                             <MobileNavMenu onClick={toggleMobileMenu} />

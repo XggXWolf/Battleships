@@ -1,4 +1,4 @@
-import truncateRank from "../../../util/truncateRank";
+import { truncateRank } from "../../../util/rankFunctions";
 import TurnIndicator from "./TurnIndicator";
 
 interface PlayerInfoProps {

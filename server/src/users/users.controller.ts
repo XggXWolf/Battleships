@@ -43,6 +43,11 @@ export class UsersController {
     return this.usersService.findMany(PaginationDto, user.role || 'user');
   }
 
+  @Get('me')
+  findMe(@Req() { user }: Request) {
+    return this.usersService.findMe(user!.sub!);
+  }
+
   @Get(':identifier')
   findOne(
     @Req() { user }: Request,

@@ -35,7 +35,6 @@ export default function LoginContainer() {
         console.log("Submitting login form with data:", data);
 
         try {
-            // Api not implemented yet
             const res = await fetch(`${BACKEND_URL}/auth/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
