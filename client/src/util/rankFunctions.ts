@@ -7,25 +7,25 @@ const rankMap: Record<string, string> = {
     Admiral: "ADM",
     Sealord: "SL",
 
+    moderator: "MOD",
     admin: "ADMIN",
 };
-export function truncateRank(rank: string): string {
-    // TO-DO:
-    // Kinda messy, fix later
-    let user = localStorage.getItem("user");
-    if (user) {
-        let userParsed = JSON.parse(user);
-        let isAdmin = userParsed.role === "admin";
+export function truncateRank(elo: number, role?: string): string {
+    const rank = getRankFromElo(elo);
 
-        if (isAdmin) {
+    switch (role) {
+        case "moderator":
+            return rankMap["moderator"];
+        case "admin":
             return rankMap["admin"];
-        }
+        default:
+            return rankMap[rank] ?? rank;
     }
-
-    return rankMap[rank] ?? rank;
 }
 
 export function getRankFromElo(elo: number): string {
+    if (!elo) return "Unranked";
+
     if (elo < 1200) return "Ensign";
     if (elo < 1400) return "Lieutenant";
     if (elo < 1600) return "Commander";

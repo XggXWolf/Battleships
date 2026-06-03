@@ -15,7 +15,7 @@ export default function PlayerInfo({
         <div id="player-info" className="flex items-center space-x-2">
             <span className="text-sm font-medium text-gray-300 hidden sm:flex items-center truncate max-w-37.5">
                 <span className="bg-blue-900/80 text-blue-100 text-xs font-bold px-2 py-0.5 rounded border border-blue-700 mr-2 shadow-sm min-w-10 text-center inline-flex items-center justify-center tracking-wide">
-                    {truncateRank(playerRank)}
+                    {playerRank}
                 </span>
                 {playerName}
             </span>

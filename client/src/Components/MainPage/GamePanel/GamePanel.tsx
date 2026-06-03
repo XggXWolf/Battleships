@@ -3,9 +3,8 @@ import GameGrid from "./GameGrid";
 import PlayerInfo from "./PlayerInfo";
 
 export default function GamePanel() {
-    {
-        /* TO-DO: Hook with Zustand to get current turn and game status */
-    }
+    /* TO-DO: Hook with Zustand to get current turn and game status */
+
     const [currentPlayer, setCurrentPlayer] = useState<"player" | "opponent">(
         "player",
     );

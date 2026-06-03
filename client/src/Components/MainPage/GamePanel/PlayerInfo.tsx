@@ -1,5 +1,8 @@
-import { truncateRank } from "../../../util/rankFunctions";
+import { useEffect, useState } from "react";
+import { getRankFromElo, truncateRank } from "../../../util/rankFunctions";
 import TurnIndicator from "./TurnIndicator";
+import { isTokenExpired } from "../../../util/authFunctions";
+import type { PlayerData } from "../../../types/playerData";
 
 interface PlayerInfoProps {
     type: "player" | "opponent";
@@ -8,18 +11,31 @@ interface PlayerInfoProps {
     showAddFriendButton?: boolean;
 }
 
-const tempUser = {
-    username: "Player",
-    rank: "Admiral",
-    elo: 1500,
-};
-
 export default function PlayerInfo({
     type,
     currentTurn,
     showTurnIndicator,
     showAddFriendButton,
 }: PlayerInfoProps) {
+    const [playerData, setPlayerData] = useState<PlayerData>({} as PlayerData);
+
+    useEffect(() => {
+        let playerData = {} as PlayerData;
+
+        if (type === "player") {
+            if (isTokenExpired()) {
+                localStorage.clear();
+                return;
+            }
+
+            playerData = JSON.parse(
+                localStorage.getItem("user") || "{}",
+            ) as PlayerData;
+        }
+
+        setPlayerData(playerData);
+    }, []);
+
     return (
         <div className="bg-primary p-3 rounded-xl shadow-lg border border-color-border shrink-0">
             <div className="flex items-center justify-between flex-wrap gap-2">
@@ -30,15 +46,15 @@ export default function PlayerInfo({
                         <span
                             className={` text-xs font-bold px-2 py-0.5 rounded border uppercase tracking-wide mr-2 shadow-sm ${type === "player" ? "bg-green-900/80 text-green-100 border-green-700" : "bg-red-900/80 text-red-100 border-red-700"} `}
                         >
-                            {truncateRank(tempUser.rank)}
+                            {truncateRank(playerData.elo, playerData.role)}
                         </span>
-                        {tempUser.username}
+                        {playerData.nickname}
                     </span>
 
                     <span
                         className={`text-sm font-semibold px-3 py-1 rounded-full whitespace-nowrap ${type === "player" ? "bg-green-800 text-green-300" : "bg-red-800 text-red-300"}`}
                     >
-                        ELO: {tempUser.elo}
+                        ELO: {playerData.elo}
                     </span>
                 </div>
 
