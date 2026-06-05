@@ -1,14 +1,9 @@
 import { JwtPayload } from 'jsonwebtoken';
+import { AppUser } from './appUser';
 
 declare global {
   namespace Express {
-    export interface User extends JwtPayload {
-      sub: string;
-      nickname: string;
-      email: string;
-      role: string;
-      isProfileComplete: boolean;
-    }
+    export interface User extends AppUser {}
 
     interface Request {
       user?: User;

@@ -12,6 +12,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ProfileCompleteGuard } from './guards/profile-complete.guard';
 import { AuthenticationGuard } from './guards/authentication.guard';
 import { AuthorizationGuard } from './guards/authorization.guard';
+import { WebsocketModule } from './websocket/websocket.module';
 
 @Module({
   imports: [
@@ -26,6 +27,8 @@ import { AuthorizationGuard } from './guards/authorization.guard';
     }),
 
     AuthModule,
+
+    WebsocketModule,
   ],
   controllers: [AppController],
   providers: [

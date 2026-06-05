@@ -41,7 +41,7 @@ export class AuthenticationGuard implements CanActivate {
 
       return true;
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unauthorized';
+      const message = error instanceof Error ? error.message : 'Invalid token';
       throw new UnauthorizedException('Unauthorized', message);
     }
   }
