@@ -1,8 +1,10 @@
 import {
-  BadRequestException,
   ConflictException,
+  HttpException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -44,6 +46,36 @@ const PUBLIC_USER_SELECT = {
 
 const DUMMY_HASH = '$2a$10$CwTycUXWue0Thq9StjUM0uJ8GryuVYJFA9qv1n5yH9iY7vHne'; // dummy bcrpyt hash for timing attack mitigation
 
+// Handle specific Prisma errors in one place, can be used for all Prisma calls in this service
+async function prismaCall<T>(prismaPromise: () => Promise<T>): Promise<T> {
+  try {
+    return await prismaPromise();
+  } catch (err) {
+    if (err instanceof PrismaClientKnownRequestError) {
+      switch (err.code) {
+        case 'P2002':
+          const field = err.meta?.target as string;
+          if (field === 'User_email_key') {
+            throw new ConflictException('Email already in use');
+          }
+
+          if (field === 'User_nickname_key') {
+            throw new ConflictException('Nickname already in use');
+          }
+
+          throw new ConflictException('User already exists');
+
+        case 'P2010':
+          throw new ServiceUnavailableException('Database unreachable.');
+        case 'P2025':
+          throw new NotFoundException('User not found.');
+      }
+    }
+
+    throw err;
+  }
+}
+
 @Injectable()
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
@@ -57,34 +89,23 @@ export class UsersService {
   async create(createUserDto: CreateUserDto): Promise<PublicUser> {
     const hashedPassword = await this.hashPassword(createUserDto.password);
     try {
-      const user = await this.prisma.user.create({
-        data: {
-          nickname: createUserDto.nickname,
-          email: createUserDto.email,
-          password: hashedPassword,
-          provider: 'local',
-          providerId: createUserDto.email, // Using email as providerId for local users
-          isProfileComplete: true, // Local users are considered to have complete profiles by default
-        },
-        select: PUBLIC_USER_SELECT,
-      });
-
-      return user;
+      return await prismaCall(() =>
+        this.prisma.user.create({
+          data: {
+            nickname: createUserDto.nickname,
+            email: createUserDto.email,
+            password: hashedPassword,
+            provider: 'local',
+            providerId: createUserDto.email, // Using email as providerId for local users
+            isProfileComplete: true, // Local users are considered to have complete profiles by default
+          },
+          select: PUBLIC_USER_SELECT,
+        }),
+      );
     } catch (err) {
-      // P2002: Unique constraint failed (e.g., email or nickname already exists)
-      if (
-        err instanceof PrismaClientKnownRequestError &&
-        err.code === 'P2002'
-      ) {
-        const field = err.meta?.target as string;
-        if (field === 'User_email_key')
-          throw new ConflictException('Email already in use');
-        if (field === 'User_nickname_key')
-          throw new ConflictException('Nickname already in use');
-        throw new ConflictException('User already exists');
-      }
+      if (err instanceof HttpException) throw err;
 
-      throw new BadRequestException('Failed to create user');
+      throw new InternalServerErrorException('Failed to create user');
     }
   }
 
@@ -94,26 +115,22 @@ export class UsersService {
     providerId,
   }: CreateUserOAuthDto): Promise<PublicUser> {
     try {
-      return this.prisma.user.upsert({
-        where: { email },
-        update: {},
-        create: {
-          email,
-          provider,
-          providerId,
-          nickname: `user_${Math.random().toString(36).slice(2, 8)}`, // Temporary nickname, should be updated by user later
-        },
-        select: PUBLIC_USER_SELECT,
-      });
+      return await prismaCall(() =>
+        this.prisma.user.upsert({
+          where: { email },
+          update: {},
+          create: {
+            email,
+            provider,
+            providerId,
+            nickname: `user_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`, // Temporary nickname, should be updated by user later
+          },
+          select: PUBLIC_USER_SELECT,
+        }),
+      );
     } catch (err) {
-      // P2002: Unique constraint failed (e.g., email already exists)
-      if (
-        err instanceof PrismaClientKnownRequestError &&
-        err.code === 'P2002'
-      ) {
-        throw new ConflictException('Email already in use');
-      }
-      throw new BadRequestException('Failed to create user');
+      if (err instanceof HttpException) throw err;
+      throw new InternalServerErrorException('Failed to create user');
     }
   }
 
@@ -123,13 +140,18 @@ export class UsersService {
   ): Promise<PublicUser[]> {
     const extensions = parseExtensions(role, extend);
 
-    const users = await this.prisma.user.findMany({
-      skip: offset,
-      take: limit,
-      select: buildUserSelect(extensions),
-    });
-
-    return users;
+    try {
+      return await prismaCall(() =>
+        this.prisma.user.findMany({
+          skip: offset,
+          take: limit,
+          select: buildUserSelect(extensions),
+        }),
+      );
+    } catch (err) {
+      if (err instanceof HttpException) throw err;
+      throw new InternalServerErrorException('Failed to find users');
+    }
   }
 
   // External method with error handling, used for public API where we want to control the response
@@ -142,29 +164,43 @@ export class UsersService {
 
     const query = buildUserQuery(identifier);
 
-    const user = await this.prisma.user.findUnique({
-      where: query,
-      select: buildUserSelect(extensions),
-    });
+    try {
+      const user = await prismaCall(() =>
+        this.prisma.user.findUnique({
+          where: query,
+          select: buildUserSelect(extensions),
+        }),
+      );
 
-    if (!user) {
-      throw new NotFoundException('User not found');
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      return user;
+    } catch (err) {
+      if (err instanceof HttpException) throw err;
+      throw new InternalServerErrorException('Failed to find user');
     }
-
-    return user;
   }
 
   async findMe(userId: string): Promise<PublicUser> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: PUBLIC_USER_SELECT,
-    });
+    try {
+      const user = await prismaCall(() =>
+        this.prisma.user.findUnique({
+          where: { id: userId },
+          select: PUBLIC_USER_SELECT,
+        }),
+      );
 
-    if (!user) {
-      throw new NotFoundException('User not found');
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      return user;
+    } catch (err) {
+      if (err instanceof HttpException) throw err;
+      throw new InternalServerErrorException('Failed to find user');
     }
-
-    return user;
   }
 
   // Internal method without error handling, used for authentication where we need the password hash
@@ -190,34 +226,19 @@ export class UsersService {
     nickname: string,
   ): Promise<PublicUser> {
     try {
-      const updatedUser = await this.prisma.user.update({
-        where: buildUserQuery(identifier),
-        data: {
-          nickname,
-          isProfileComplete: true,
-        },
-        select: PUBLIC_USER_SELECT,
-      });
-
-      return updatedUser;
+      return await prismaCall(() =>
+        this.prisma.user.update({
+          where: buildUserQuery(identifier),
+          data: {
+            nickname,
+            isProfileComplete: true,
+          },
+          select: PUBLIC_USER_SELECT,
+        }),
+      );
     } catch (err) {
-      // P2025: record not found
-      if (
-        err instanceof PrismaClientKnownRequestError &&
-        err.code === 'P2025'
-      ) {
-        throw new NotFoundException('User not found');
-      }
-      // P2002: Unique constraint failed (e.g., nickname already exists)
-      if (
-        err instanceof PrismaClientKnownRequestError &&
-        err.code === 'P2002' &&
-        err.meta?.target === 'User_nickname_key'
-      ) {
-        throw new ConflictException('Nickname already in use');
-      }
-
-      throw new BadRequestException('Failed to complete profile');
+      if (err instanceof HttpException) throw err;
+      throw new InternalServerErrorException('Failed to complete profile');
     }
   }
 
@@ -249,22 +270,16 @@ export class UsersService {
       }),
     };
     try {
-      const updatedUser = await this.prisma.user.update({
-        where: query,
-        data: data,
-        select: PUBLIC_USER_SELECT,
-      });
-
-      return updatedUser;
+      return await prismaCall(() =>
+        this.prisma.user.update({
+          where: query,
+          data: data,
+          select: PUBLIC_USER_SELECT,
+        }),
+      );
     } catch (err) {
-      // P2025: record not found
-      if (
-        err instanceof PrismaClientKnownRequestError &&
-        err.code === 'P2025'
-      ) {
-        throw new NotFoundException('User not found');
-      }
-      throw new BadRequestException('Failed to update user');
+      if (err instanceof HttpException) throw err;
+      throw new InternalServerErrorException('Failed to update user');
     }
   }
 
@@ -272,23 +287,18 @@ export class UsersService {
     const query = buildUserQuery(identifier);
 
     try {
-      const deletedUser = await this.prisma.user.delete({
-        where: query,
-        select: {
-          id: true,
-          nickname: true,
-        },
-      });
-      return deletedUser;
+      return await prismaCall(() =>
+        this.prisma.user.delete({
+          where: query,
+          select: {
+            id: true,
+            nickname: true,
+          },
+        }),
+      );
     } catch (err) {
-      // P2025: record not found
-      if (
-        err instanceof PrismaClientKnownRequestError &&
-        err.code === 'P2025'
-      ) {
-        throw new NotFoundException('User not found');
-      }
-      throw new BadRequestException('Failed to delete user');
+      if (err instanceof HttpException) throw err;
+      throw new InternalServerErrorException('Failed to delete user');
     }
   }
 }
