@@ -13,7 +13,6 @@ interface FriendProps {
 // Clicking on it will open the FriendDetails panel for that friend.
 export default function Friend({
     name,
-    rank,
     status,
     elo,
     onFriendClick,
@@ -28,7 +27,7 @@ export default function Friend({
                     <span
                         className={`${status === "online" ? "bg-green-900/60 text-green-200 border border-green-700/50" : "bg-gray-900/60 text-gray-200 border border-gray-700/50"} px-1 rounded text-[10px] font-bold mr-2`}
                     >
-                        {truncateRank(rank)}
+                        {truncateRank(elo)}
                     </span>
                     <span className="text-sm text-white font-medium">
                         {name}

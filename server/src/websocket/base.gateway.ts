@@ -14,7 +14,7 @@ export abstract class BaseGateway
   afterInit(server: Server) {}
 
   async handleConnection(client: any) {
-    const token = client.handshake.headers['authorization']?.split(' ')[1];
+    const token = client.handshake.auth?.token;
 
     if (!token) {
       client.emit('error', { message: 'Unauthorized: No token provided' });

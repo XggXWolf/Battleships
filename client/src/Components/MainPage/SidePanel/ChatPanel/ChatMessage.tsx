@@ -1,15 +1,11 @@
-export interface ChatMessageProps {
-    type: "player" | "opponent" | "system";
-    content: string;
+import type { ChatMessage } from "../../../../hooks/useChat";
 
-    //TO-DO
-    uuid?: string;
-    senderId?: string;
-    senderName?: string;
+export interface ChatMessageProps {
+    message: ChatMessage;
 }
 
 // TO-DO: Retrieve actual player names and system messages from backend instead of hardcoding
-function getPlayerName(type: ChatMessageProps["type"]) {
+function getPlayerName(type: "system" | "player" | "opponent") {
     switch (type) {
         case "player":
             return "You";
@@ -20,17 +16,17 @@ function getPlayerName(type: ChatMessageProps["type"]) {
     }
 }
 
-export default function ChatMessage({ type, content }: ChatMessageProps) {
-    const playerName = getPlayerName(type);
+export default function ChatMessage({ message }: ChatMessageProps) {
+    const playerName = getPlayerName(message.type);
 
-    switch (type) {
+    switch (message.type) {
         case "player":
             return (
                 <div className="text-sm text-right">
                     <span className="font-bold text-green-400">
                         {playerName}:
                     </span>{" "}
-                    {content}
+                    {message.content}
                 </div>
             );
 
@@ -40,7 +36,7 @@ export default function ChatMessage({ type, content }: ChatMessageProps) {
                     <span className="font-bold text-red-400">
                         {playerName}:
                     </span>{" "}
-                    {content}
+                    {message.content}
                 </div>
             );
 
@@ -50,7 +46,7 @@ export default function ChatMessage({ type, content }: ChatMessageProps) {
                     <span className="font-bold text-blue-400">
                         {playerName}:
                     </span>{" "}
-                    {content}
+                    {message.content}
                 </div>
             );
     }

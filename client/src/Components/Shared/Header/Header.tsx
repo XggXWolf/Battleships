@@ -7,7 +7,7 @@ import MobileNavDropdownMenu from "./Mobile/MobileNavDropdownMenu";
 import { NavLink, useLocation } from "react-router";
 import { isTokenExpired } from "../../../util/authFunctions";
 import type { PlayerData } from "../../../types/playerData";
-import { getRankFromElo, truncateRank } from "../../../util/rankFunctions";
+import { truncateRank } from "../../../util/rankFunctions";
 
 export default function Header() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

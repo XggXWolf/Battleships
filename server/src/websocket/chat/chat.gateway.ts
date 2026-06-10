@@ -9,28 +9,45 @@ import {
 import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { BaseGateway } from '../base.gateway';
+import { ChatMessage } from '../../types/chatMessage';
 
-@WebSocketGateway({ namespace: 'chat' })
+@WebSocketGateway({
+  namespace: 'chat',
+  cors: {
+    origin: '*',
+    credentials: true,
+  },
+})
 export class ChatGateway extends BaseGateway {
   @WebSocketServer() server!: Server;
   constructor(jwtService: JwtService) {
     super(jwtService);
   }
 
+  @SubscribeMessage('join_room')
+  handleJoinRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() roomId: string,
+  ): void {
+    client.join(roomId);
+    console.log(`Client ${client.id} joined room ${roomId}`);
+  }
+
+  @SubscribeMessage('leave_room')
+  handleLeaveRoom() {}
   @SubscribeMessage('message')
   handleMessage(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: any,
+    @MessageBody() message: ChatMessage,
   ): void {
-    console.log('Received message:', data);
+    console.log('Received message:', message);
 
     let chatMessage = {
-      senderSocket: client.id,
       senderNickname: client.user.nickname,
-      content: data,
+      content: message.content,
       timestamp: new Date(),
     };
 
-    client.broadcast.emit('message', chatMessage);
+    this.server.emit('message', chatMessage);
   }
 }

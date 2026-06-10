@@ -1,4 +1,15 @@
-export default function LobbyPanel() {
+import type { Dispatch, SetStateAction } from "react";
+
+type LobbyPanelProps = {
+    onGameJoin: Dispatch<SetStateAction<"lobby" | "chat">>;
+};
+
+export default function LobbyPanel({ onGameJoin }: LobbyPanelProps) {
+    function handlePlayRanked(): void {
+        console.log("Play Ranked clicked");
+        onGameJoin("chat");
+    }
+
     return (
         <div id="lobby-panel" className="flex flex-col space-y-4 h-full">
             <h3 className="text-xl font-bold text-center text-blue-400 border-b border-gray-700 pb-3 mb-2">
@@ -10,6 +21,7 @@ export default function LobbyPanel() {
             <button
                 id="play-ranked-btn"
                 className="w-full py-4 text-lg font-bold rounded-xl bg-green-600 hover:bg-green-700 transition shadow-xl transform hover:scale-[1.02]"
+                onClick={handlePlayRanked}
             >
                 ▶️ Play Ranked Match
             </button>

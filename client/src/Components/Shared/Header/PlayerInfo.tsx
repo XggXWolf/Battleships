@@ -1,5 +1,3 @@
-import { truncateRank } from "../../../util/rankFunctions";
-
 interface PlayerInfoProps {
     playerName: string;
     playerElo: number;

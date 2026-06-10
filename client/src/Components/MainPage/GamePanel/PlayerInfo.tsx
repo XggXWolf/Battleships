@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getRankFromElo, truncateRank } from "../../../util/rankFunctions";
+import { truncateRank } from "../../../util/rankFunctions";
 import TurnIndicator from "./TurnIndicator";
 import { isTokenExpired } from "../../../util/authFunctions";
 import type { PlayerData } from "../../../types/playerData";
