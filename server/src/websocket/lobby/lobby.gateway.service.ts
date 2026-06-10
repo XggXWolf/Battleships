@@ -10,7 +10,14 @@ export class LobbyGatewayService {
   readonly playerQueue = new MatchmakingQueue();
 
   handleQueueJoin(client: Socket) {
-    this.playerQueue.insert({ clientId: client.id, elo: client.user.elo });
+    const userId = client.user.sub;
+    if (this.playerQueue.has(userId)) {
+      console.log(`Client ${client.id} is already in the queue`);
+      return;
+    }
+
+    this.playerQueue.insert({ userId: userId, elo: client.user.elo });
+
     client.join('queue');
     console.log(`Client ${client.id} joined the queue`);
 
@@ -42,8 +49,8 @@ export class LobbyGatewayService {
       return null;
     }
 
-    const player1 = this.gatewayService.onlineUsers.get(player1Entry.clientId);
-    const player2 = this.gatewayService.onlineUsers.get(player2Entry.clientId);
+    const player1 = this.gatewayService.onlineUsers.get(player1Entry.userId);
+    const player2 = this.gatewayService.onlineUsers.get(player2Entry.userId);
 
     if (!player1 || !player2) {
       if (player1) this.playerQueue.insert(player1Entry);

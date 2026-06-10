@@ -1,6 +1,4 @@
-import { JwtService } from '@nestjs/jwt';
 import {
-  OnGatewayConnection,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -9,9 +7,11 @@ import {
 import { Server, Socket } from 'socket.io';
 import { BaseGateway } from '../base.gateway';
 import { LobbyGatewayService } from './lobby.gateway.service';
-import { UsersService } from '../../users/users.service';
 import { GatewayService } from '../gateway.service';
+import { WsReadyGuard } from '../../guards/ws-ready.guard';
+import { UseGuards } from '@nestjs/common';
 
+@UseGuards(WsReadyGuard)
 @WebSocketGateway({ namespace: 'lobby' })
 export class LobbyGateway extends BaseGateway {
   async handleConnection(client: any): Promise<void> {

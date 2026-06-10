@@ -1,11 +1,11 @@
 export interface QueueEntry {
-  clientId: string;
+  userId: string;
   elo: number;
 }
 
 export class MatchmakingQueue {
   private nodes: QueueEntry[] = [];
-  private indexMap: Map<string, number> = new Map(); // clientId -> heap index
+  private indexMap: Map<string, number> = new Map(); // userId -> heap index
 
   get size(): number {
     return this.nodes.length;
@@ -15,14 +15,14 @@ export class MatchmakingQueue {
     return this.nodes.length === 0;
   }
 
-  has(clientId: string): boolean {
-    return this.indexMap.has(clientId);
+  has(userId: string): boolean {
+    return this.indexMap.has(userId);
   }
 
   insert(entry: QueueEntry): void {
     this.nodes.push(entry);
     const index = this.nodes.length - 1;
-    this.indexMap.set(entry.clientId, index);
+    this.indexMap.set(entry.userId, index);
     this.bubbleUp(index);
   }
 
@@ -31,7 +31,7 @@ export class MatchmakingQueue {
     const root = this.nodes[0];
     this.swap(0, this.nodes.length - 1);
     this.nodes.pop();
-    this.indexMap.delete(root.clientId);
+    this.indexMap.delete(root.userId);
     if (!this.isEmpty()) this.bubbleDown(0);
     return root;
   }
@@ -40,21 +40,21 @@ export class MatchmakingQueue {
     return this.nodes[0] ?? null;
   }
 
-  remove(clientId: string): boolean {
-    const index = this.indexMap.get(clientId);
+  remove(userId: string): boolean {
+    const index = this.indexMap.get(userId);
     if (index === undefined) return false;
 
     const lastIndex = this.nodes.length - 1;
 
     if (index === lastIndex) {
       this.nodes.pop();
-      this.indexMap.delete(clientId);
+      this.indexMap.delete(userId);
       return true;
     }
 
     this.swap(index, lastIndex);
     this.nodes.pop();
-    this.indexMap.delete(clientId);
+    this.indexMap.delete(userId);
 
     this.bubbleUp(index);
     this.bubbleDown(index);
@@ -97,8 +97,8 @@ export class MatchmakingQueue {
   }
 
   private swap(i: number, j: number): void {
-    this.indexMap.set(this.nodes[i].clientId, j);
-    this.indexMap.set(this.nodes[j].clientId, i);
+    this.indexMap.set(this.nodes[i].userId, j);
+    this.indexMap.set(this.nodes[j].userId, i);
     [this.nodes[i], this.nodes[j]] = [this.nodes[j], this.nodes[i]];
   }
 }

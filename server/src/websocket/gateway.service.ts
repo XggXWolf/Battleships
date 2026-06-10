@@ -23,12 +23,18 @@ export class GatewayService {
     }
 
     try {
+      // Need this to wait until database call is completed.
+      client.data.ready = false;
+
       const decoded = this.jwtService.verify(token);
 
       const user = await this.usersService.findMe(decoded.sub);
       const elo = user.elo;
 
       client.user = { elo, ...decoded };
+      client.data.userId = decoded.sub;
+
+      client.data.ready = true;
     } catch (error) {
       console.log(
         'Unauthorized connection attempt:',
@@ -38,13 +44,13 @@ export class GatewayService {
       return;
     }
 
-    this.onlineUsers.set(client.user.id, client);
+    this.onlineUsers.set(client.user.sub, client);
     console.log('Client connected:', client.id);
     console.log('Online users:', this.onlineUsers.size);
   }
 
   async handleDisconnect(client: any): Promise<void> {
-    this.onlineUsers.delete(client.user.id);
+    this.onlineUsers.delete(client.data.userId);
     console.log('Client disconnected:', client.id);
     console.log('Online users:', this.onlineUsers.size);
   }
