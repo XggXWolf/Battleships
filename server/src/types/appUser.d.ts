@@ -6,4 +6,5 @@ export interface AppUser extends JwtPayload {
   email: string;
   role: string;
   isProfileComplete: boolean;
+  elo: number;
 }

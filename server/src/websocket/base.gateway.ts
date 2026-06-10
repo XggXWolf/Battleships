@@ -5,40 +5,21 @@ import {
   OnGatewayInit,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
+import { UsersService } from '../users/users.service';
+import { GatewayService } from './gateway.service';
 
 export abstract class BaseGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  constructor(protected readonly jwtService: JwtService) {}
+  constructor(protected readonly gatewayService: GatewayService) {}
 
   afterInit(server: Server) {}
 
-  async handleConnection(client: any) {
-    const token = client.handshake.auth?.token;
-
-    if (!token) {
-      client.emit('error', { message: 'Unauthorized: No token provided' });
-      console.log('Unauthorized connection attempt. Disconnecting...');
-      client.disconnect(true);
-      return;
-    }
-
-    try {
-      const decoded = this.jwtService.verify(token);
-      client.user = decoded;
-    } catch (error) {
-      console.log(
-        'Unauthorized connection attempt:',
-        error instanceof Error ? error.message : 'Invalid token',
-      );
-      client.disconnect(true);
-      return;
-    }
-
-    console.log('Client connected:', client.id);
+  handleConnection(client: any) {
+    this.gatewayService.handleConnection(client);
   }
 
   handleDisconnect(client: any) {
-    console.log('Client disconnected:', client.id);
+    this.gatewayService.handleDisconnect(client);
   }
 }

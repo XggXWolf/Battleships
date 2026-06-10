@@ -1,5 +1,6 @@
 import { JwtService } from '@nestjs/jwt';
 import {
+  OnGatewayConnection,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -7,20 +8,37 @@ import {
 
 import { Server, Socket } from 'socket.io';
 import { BaseGateway } from '../base.gateway';
+import { LobbyGatewayService } from './lobby.gateway.service';
+import { UsersService } from '../../users/users.service';
+import { GatewayService } from '../gateway.service';
 
 @WebSocketGateway({ namespace: 'lobby' })
 export class LobbyGateway extends BaseGateway {
-  @WebSocketServer() server!: Server;
-  constructor(jwtService: JwtService) {
-    super(jwtService);
+  async handleConnection(client: any): Promise<void> {
+    await super.handleConnection(client);
   }
 
-  @SubscribeMessage('message')
-  handleMessage(client: Socket, message: any): void {
-    console.log('Received message:', message);
+  @WebSocketServer() server!: Server;
+  constructor(
+    protected readonly gatewayService: GatewayService,
+    private readonly lobbyGatewayService: LobbyGatewayService,
+  ) {
+    super(gatewayService);
+  }
 
-    client.emit('message', `Echo: ${message}`);
+  @SubscribeMessage('join_queue')
+  handleQueueJoin(client: Socket): void {
+    this.lobbyGatewayService.handleQueueJoin(client);
+  }
 
-    this.server.emit('message', 'Hello from the server!');
+  @SubscribeMessage('leave_queue')
+  handleQueueLeave(client: Socket): void {
+    client.leave('queue');
+    console.log(`Client ${client.id} left the queue`);
+  }
+
+  handleDisconnect(client: any): void {
+    this.lobbyGatewayService.handleQueueLeave(client);
+    super.handleDisconnect(client);
   }
 }

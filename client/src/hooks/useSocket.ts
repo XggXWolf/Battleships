@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import socket from "../lib/socket";
+import type { Socket } from "socket.io-client";
 
-export default function useSocket() {
+export default function useSocket(socket: Socket) {
     const [isConnected, setConnected] = useState(socket.connected);
     const [error, setError] = useState<string | null>(null);
 

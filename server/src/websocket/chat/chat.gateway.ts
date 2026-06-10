@@ -10,6 +10,8 @@ import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { BaseGateway } from '../base.gateway';
 import { ChatMessage } from '../../types/chatMessage';
+import { UsersService } from '../../users/users.service';
+import { GatewayService } from '../gateway.service';
 
 @WebSocketGateway({
   namespace: 'chat',
@@ -20,8 +22,8 @@ import { ChatMessage } from '../../types/chatMessage';
 })
 export class ChatGateway extends BaseGateway {
   @WebSocketServer() server!: Server;
-  constructor(jwtService: JwtService) {
-    super(jwtService);
+  constructor(protected readonly gatewayService: GatewayService) {
+    super(gatewayService);
   }
 
   @SubscribeMessage('join_room')

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import socket from "../lib/socket";
+import { chatSocket } from "../lib/socket";
 
 export interface ChatMessage {
     uuid: string;
@@ -13,9 +13,9 @@ export default function useChat(roomId: string) {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
 
     useEffect(() => {
-        socket.emit("join_room", roomId);
+        chatSocket.emit("join_room", roomId);
 
-        socket.on("message", (message: ChatMessage) => {
+        chatSocket.on("message", (message: ChatMessage) => {
             const currentUser = JSON.parse(
                 localStorage.getItem("user") || ({} as string),
             );
@@ -31,13 +31,13 @@ export default function useChat(roomId: string) {
         });
 
         return () => {
-            socket.off("message");
-            socket.emit("leave_room", roomId);
+            chatSocket.off("message");
+            chatSocket.emit("leave_room", roomId);
         };
     }, [roomId]);
 
     const sendMessage = (content: string) => {
-        socket.emit("message", { roomId, content });
+        chatSocket.emit("message", { roomId, content });
     };
 
     return { messages, sendMessage };

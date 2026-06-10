@@ -1,13 +1,22 @@
-import type { Dispatch, SetStateAction } from "react";
+import { useState, type Dispatch, type SetStateAction } from "react";
+import useLobby from "../../../../hooks/useLobby";
 
 type LobbyPanelProps = {
     onGameJoin: Dispatch<SetStateAction<"lobby" | "chat">>;
 };
 
 export default function LobbyPanel({ onGameJoin }: LobbyPanelProps) {
+    const [inQueue, setInQueue] = useState(false);
+    const { joinQueue, leaveQueue } = useLobby(() => onGameJoin("chat"));
+
     function handlePlayRanked(): void {
-        console.log("Play Ranked clicked");
-        onGameJoin("chat");
+        setInQueue(true);
+        joinQueue();
+    }
+
+    function handleCancelQueue(): void {
+        setInQueue(false);
+        leaveQueue();
     }
 
     return (
@@ -21,9 +30,11 @@ export default function LobbyPanel({ onGameJoin }: LobbyPanelProps) {
             <button
                 id="play-ranked-btn"
                 className="w-full py-4 text-lg font-bold rounded-xl bg-green-600 hover:bg-green-700 transition shadow-xl transform hover:scale-[1.02]"
-                onClick={handlePlayRanked}
+                onClick={inQueue ? handleCancelQueue : handlePlayRanked}
             >
-                ▶️ Play Ranked Match
+                {inQueue
+                    ? "⏳ Searching for Opponent..."
+                    : "▶️ Play Ranked Match"}
             </button>
             <button className="w-full py-4 text-lg font-bold rounded-xl bg-blue-600 hover:bg-blue-700 transition shadow-xl">
                 🤝 Invite Friend

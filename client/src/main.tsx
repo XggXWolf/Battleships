@@ -12,13 +12,19 @@ import Login from "./Pages/Login/Login.tsx";
 import Register from "./Pages/Register/Register.tsx";
 import ResetPassword from "./Pages/ResetPassword/ResetPassword.tsx";
 import { isTokenExpired } from "./util/authFunctions.ts";
+import useSocket from "./hooks/useSocket.ts";
+import { lobbySocket } from "./lib/socket.ts";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <Layout />,
+        element: (
+            <AuthenticatedLayout>
+                <Layout />
+            </AuthenticatedLayout>
+        ),
         children: [
             {
                 index: true,
@@ -58,9 +64,30 @@ const router = createBrowserRouter([
         path: "/",
         element: <Layout sonar={true} />,
         children: [
-            { path: "login", element: <Login /> },
-            { path: "register", element: <Register /> },
-            { path: "reset-password", element: <ResetPassword /> },
+            {
+                path: "login",
+                element: (
+                    <ReverseProtectedRoute>
+                        <Login />
+                    </ReverseProtectedRoute>
+                ),
+            },
+            {
+                path: "register",
+                element: (
+                    <ReverseProtectedRoute>
+                        <Register />
+                    </ReverseProtectedRoute>
+                ),
+            },
+            {
+                path: "reset-password",
+                element: (
+                    <ReverseProtectedRoute>
+                        <ResetPassword />
+                    </ReverseProtectedRoute>
+                ),
+            },
         ],
     },
 ]);
@@ -87,10 +114,23 @@ async function fetchUserData() {
     }
 }
 
+function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
+    useSocket(lobbySocket);
+    return children;
+}
+
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
     if (isTokenExpired()) {
         localStorage.clear();
         return <Navigate to="/login" replace />;
+    }
+
+    return children;
+}
+
+function ReverseProtectedRoute({ children }: { children: React.ReactNode }) {
+    if (!isTokenExpired()) {
+        return <Navigate to="/" replace />;
     }
 
     return children;

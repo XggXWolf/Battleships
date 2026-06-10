@@ -203,20 +203,22 @@ export class UsersService {
     }
   }
 
-  // Internal method without error handling, used for authentication where we need the password hash
+  // Internal method used for authentication where we need the password hash
   private async findOneInternal(email: string): Promise<InternalUser | null> {
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-      select: {
-        id: true,
-        email: true,
-        nickname: true,
-        password: true,
-        role: true,
-        isProfileComplete: true,
-        elo: true,
-      },
-    });
+    const user = await prismaCall(() =>
+      this.prisma.user.findUnique({
+        where: { email },
+        select: {
+          id: true,
+          email: true,
+          nickname: true,
+          password: true,
+          role: true,
+          isProfileComplete: true,
+          elo: true,
+        },
+      }),
+    );
 
     return user;
   }

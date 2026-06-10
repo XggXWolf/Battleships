@@ -1,10 +1,11 @@
 import { useState } from "react";
 import useChat from "../../../../hooks/useChat";
-import useSocket from "../../../../hooks/useSocket";
 import ChatMessage from "./ChatMessage";
+import useSocket from "../../../../hooks/useSocket";
+import { chatSocket } from "../../../../lib/socket";
 
 export default function ChatPanel() {
-    useSocket();
+    useSocket(chatSocket);
     const { messages, sendMessage } = useChat("testRoom");
     const [messageInput, setMessageInput] = useState("");
 
