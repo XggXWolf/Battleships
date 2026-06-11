@@ -6,18 +6,18 @@ import { GameService } from '../game/game.service';
 
 @Injectable()
 export class LobbyGatewayService {
-  constructor(private gatewayService: GatewayService) {}
+  constructor(private gatewayService: GatewayService) { }
 
   readonly playerQueue = new MatchmakingQueue(); // userId -> elo
 
   handleQueueJoin(client: Socket) {
-    const userId = client.user.sub;
+    const userId = client.data.sub;
     if (this.playerQueue.has(userId)) {
-      console.log(`Client ${client.id} is already in the queue`);
-      return;
+      console.log(`Client ${client.id} is already in the queue, re-adding`);
+      this.handleQueueLeave(client);
     }
 
-    this.playerQueue.insert({ userId: userId, elo: client.user.elo });
+    this.playerQueue.insert({ userId: userId, elo: client.data.elo });
 
     client.join('queue');
     console.log(`Client ${client.id} joined the queue`);
@@ -27,13 +27,37 @@ export class LobbyGatewayService {
       console.log(
         `Match found between ${match.player1.id} and ${match.player2.id}`,
       );
-      match.player1.emit('match_found', { opponent: match.player2.user });
-      match.player2.emit('match_found', { opponent: match.player1.user });
+
+      match.player1.leave('queue');
+      match.player2.leave('queue');
+
+      const roomId = `${match.player1.data.sub}-${match.player2.data.sub}`;
+      match.player1.join(roomId);
+      match.player2.join(roomId);
+
+      let player1DataStripped = {
+        username: match.player1.data.username,
+        elo: match.player1.data.elo,
+        sub: match.player1.data.sub,
+      }
+
+      let player2DataStripped = {
+        username: match.player2.data.username,
+        elo: match.player2.data.elo,
+        sub: match.player2.data.sub,
+      }
+
+      match.player1.emit('match_found', { opponent: player2DataStripped, roomId });
+      match.player2.emit('match_found', { opponent: player1DataStripped, roomId });
     }
   }
 
   handleQueueLeave(client: Socket) {
-    this.playerQueue.remove(client.id);
+    console.log(client.data.sub);
+    console.log(this.playerQueue);
+
+    this.playerQueue.remove(client.data.sub);
+
     client.leave('queue');
     console.log(`Client ${client.id} left the queue`);
   }

@@ -7,10 +7,8 @@ import {
 } from '@nestjs/websockets';
 
 import { Server, Socket } from 'socket.io';
-import { JwtService } from '@nestjs/jwt';
 import { BaseGateway } from '../base.gateway';
 import { ChatMessage } from '../../types/chatMessage';
-import { UsersService } from '../../users/users.service';
 import { GatewayService } from '../gateway.service';
 
 @WebSocketGateway({
@@ -36,20 +34,26 @@ export class ChatGateway extends BaseGateway {
   }
 
   @SubscribeMessage('leave_room')
-  handleLeaveRoom() {}
+  handleLeaveRoom() { }
+
   @SubscribeMessage('message')
   handleMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody() message: ChatMessage,
   ): void {
+    console.log('Client:', client.data);
+    console.log('Client rooms:', client.rooms);
     console.log('Received message:', message);
 
+    if (!message.roomId) return;
+
     let chatMessage = {
-      senderNickname: client.user.nickname,
+      senderNickname: client.data.nickname,
       content: message.content,
       timestamp: new Date(),
     };
 
-    this.server.emit('message', chatMessage);
+    console.log('Sending message to room', message.roomId, ':', chatMessage);
+    this.server.to(message.roomId).emit('message', chatMessage);
   }
 }

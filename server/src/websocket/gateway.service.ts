@@ -10,7 +10,7 @@ export class GatewayService {
   constructor(
     protected readonly jwtService: JwtService,
     protected readonly usersService: UsersService,
-  ) {}
+  ) { }
 
   async handleConnection(client: any): Promise<void> {
     const token = client.handshake.auth?.token;
@@ -31,8 +31,7 @@ export class GatewayService {
       const user = await this.usersService.findMe(decoded.sub);
       const elo = user.elo;
 
-      client.user = { elo, ...decoded };
-      client.data.userId = decoded.sub;
+      Object.assign(client.data, { elo, ...decoded });
 
       client.data.ready = true;
     } catch (error) {
@@ -44,13 +43,13 @@ export class GatewayService {
       return;
     }
 
-    this.onlineUsers.set(client.user.sub, client);
+    this.onlineUsers.set(client.data.sub, client);
     console.log('Client connected:', client.id);
     console.log('Online users:', this.onlineUsers.size);
   }
 
   async handleDisconnect(client: any): Promise<void> {
-    this.onlineUsers.delete(client.data.userId);
+    this.onlineUsers.delete(client.data.sub);
     console.log('Client disconnected:', client.id);
     console.log('Online users:', this.onlineUsers.size);
   }
