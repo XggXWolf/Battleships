@@ -16,7 +16,7 @@ export default function ChatPanel() {
             </h3>
             <div
                 id="chat-messages"
-                className="grow overflow-y-auto space-y-3 p-2 bg-root rounded-lg mb-4 h-64 sm:h-auto"
+                className="flex-1 min-h-0 overflow-y-auto space-y-3 p-2 bg-root rounded-lg mb-4"
             >
                 {messages.map((msg, index) => (
                     <ChatMessage key={index} message={msg} />
