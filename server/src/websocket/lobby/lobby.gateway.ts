@@ -33,8 +33,7 @@ export class LobbyGateway extends BaseGateway {
 
   @SubscribeMessage('leave_queue')
   handleQueueLeave(client: Socket): void {
-    client.leave('queue');
-    console.log(`Client ${client.id} left the queue`);
+    this.lobbyGatewayService.handleQueueLeave(client);
   }
 
   handleDisconnect(client: any): void {

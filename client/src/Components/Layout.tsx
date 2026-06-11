@@ -8,10 +8,10 @@ interface LayoutProps {
 
 export function Layout({ sonar = false }: LayoutProps) {
     return (
-        <>
+        <div className="flex flex-col flex-1 min-h-0">
             <Header />
             <Outlet />
             <Background sonar={sonar} />
-        </>
+        </div>
     );
 }
