@@ -1,10 +1,18 @@
 import { Position, Ship } from './game.types';
 
-class Game {
+export class Game {
   private boards = new Map<string, Ship[]>(); // userId -> ships
   private shots = new Map<string, Position[]>(); // userId -> shots
   private turn: string; // userId
   private phase: 'placement' | 'active' | 'finished' = 'placement';
+
+  get currentTurn() {
+    return this.turn;
+  }
+
+  get currentPhase() {
+    return this.phase;
+  }
 
   constructor(
     readonly player1Id: string,
@@ -13,17 +21,21 @@ class Game {
     this.turn = player1Id;
   }
 
-  placeShips(userId: string, ships?: Ship[]) {
-    const occupies = (s: Ship): string[] => {
-      let positions = [] as string[];
-      for (let i = 0; i < s.size; i++) {
-        const cx = s.rotation === 'horizontal' ? s.pos.x + i : s.pos.x;
-        const cy = s.rotation === 'vertical' ? s.pos.y + i : s.pos.y;
-        positions.push(`${cx},${cy}`);
-      }
+  private occupies = (s: Ship): string[] => {
+    let positions = [] as string[];
+    for (let i = 0; i < s.size; i++) {
+      const cx = s.rotation === 'horizontal' ? s.pos.x + i : s.pos.x;
+      const cy = s.rotation === 'vertical' ? s.pos.y + i : s.pos.y;
+      positions.push(`${cx},${cy}`);
+    }
 
-      return positions;
-    };
+    return positions;
+  };
+
+  placeShips(userId: string, ships?: Ship[]) {
+    if (userId !== this.player1Id && userId !== this.player2Id) {
+      throw new Error('Invalid player');
+    }
 
     if (this.phase !== 'placement') {
       throw new Error('Cannot place ships after the placement phase');
@@ -56,8 +68,8 @@ class Game {
             };
           }
         } while (
-          occupies({ size, pos, rotation }).some((p) =>
-            placed.flatMap(occupies).includes(p),
+          this.occupies({ size, pos, rotation }).some((p) =>
+            placed.flatMap(this.occupies).includes(p),
           )
         );
 
@@ -82,7 +94,90 @@ class Game {
     return false;
   }
 
-  bothPlaced() {
+  private bothPlaced() {
     return this.boards.has(this.player1Id) && this.boards.has(this.player2Id);
+  }
+
+  private isShipSunk(ship: Ship, shots: Position[]): boolean {
+    const occupied = this.occupies(ship);
+    return occupied.every((cell) =>
+      shots.some((s) => cell === `${s.x},${s.y}`),
+    );
+  }
+
+  private isWithinBounds(pos: Position): boolean {
+    return pos.x >= 0 && pos.x < 10 && pos.y >= 0 && pos.y < 10;
+  }
+
+  fire(
+    userId: string,
+    position: Position,
+  ): {
+    hitShip: Ship | null;
+    sunk: boolean;
+    won: boolean;
+    position: Position;
+  } {
+    if (this.phase !== 'active') {
+      throw new Error('Game is not in active phase');
+    }
+
+    if (this.turn !== userId) {
+      throw new Error('Not your turn');
+    }
+
+    if (!this.isWithinBounds(position)) {
+      throw new Error('Position out of bounds');
+    }
+
+    if (!this.shots.has(userId)) {
+      this.shots.set(userId, []);
+    }
+
+    const opponentId =
+      userId === this.player1Id ? this.player2Id : this.player1Id;
+    let targetBoard = this.boards.get(opponentId)!;
+
+    const playerShots = this.shots.get(userId)!;
+
+    const alreadyFired = playerShots.some(
+      (s) => s.x === position.x && s.y === position.y,
+    );
+
+    if (alreadyFired) {
+      throw new Error('Already fired at this position');
+    }
+
+    const hitShip =
+      targetBoard.find((ship) =>
+        this.occupies(ship).some(
+          (cell) => cell === `${position.x},${position.y}`,
+        ),
+      ) ?? null;
+
+    playerShots.push(position);
+
+    const sunk = hitShip ? this.isShipSunk(hitShip, playerShots) : false;
+
+    const allOpponentCells = targetBoard.flatMap(this.occupies);
+    const won = allOpponentCells.every((cell) =>
+      playerShots.some((s) => cell === `${s.x},${s.y}`),
+    );
+
+    if (won) {
+      this.phase = 'finished';
+    } else if (!hitShip) {
+      this.turn = opponentId;
+    }
+
+    return { hitShip, sunk, won, position };
+  }
+
+  getWinner() {
+    if (this.phase !== 'finished') {
+      return null;
+    }
+
+    return this.turn;
   }
 }

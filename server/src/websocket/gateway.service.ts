@@ -5,7 +5,7 @@ import { Socket } from 'socket.io';
 
 @Injectable()
 export class GatewayService {
-  readonly onlineUsers = new Map<string, Socket>();
+  readonly onlineUsers = new Map<string, Socket>(); // userId -> Socket
 
   constructor(
     protected readonly jwtService: JwtService,
