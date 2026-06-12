@@ -7,7 +7,7 @@ import { MatchmakingQueue } from '../util/playerQueue';
 export class LobbyGatewayService {
   constructor(private gatewayService: GatewayService) { }
 
-  readonly playerQueue = new MatchmakingQueue();
+  readonly playerQueue = new MatchmakingQueue(); // userId -> elo
 
   handleQueueJoin(client: Socket) {
     const userId = client.data.sub;
