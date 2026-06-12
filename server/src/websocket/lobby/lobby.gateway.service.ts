@@ -6,7 +6,10 @@ import { GameService } from '../game/game.service';
 
 @Injectable()
 export class LobbyGatewayService {
-  constructor(private gatewayService: GatewayService) { }
+  constructor(
+    private gatewayService: GatewayService,
+    protected readonly gameService: GameService,
+  ) { }
 
   readonly playerQueue = new MatchmakingQueue(); // userId -> elo
 
@@ -31,24 +34,32 @@ export class LobbyGatewayService {
       match.player1.leave('queue');
       match.player2.leave('queue');
 
-      const roomId = `${match.player1.data.sub}-${match.player2.data.sub}`;
-      match.player1.join(roomId);
-      match.player2.join(roomId);
+      const gameId = this.gameService.createGame(
+        match.player1.data.sub,
+        match.player2.data.sub,
+      );
+
 
       let player1DataStripped = {
         username: match.player1.data.username,
         elo: match.player1.data.elo,
         sub: match.player1.data.sub,
-      }
+      };
 
       let player2DataStripped = {
         username: match.player2.data.username,
         elo: match.player2.data.elo,
         sub: match.player2.data.sub,
-      }
+      };
 
-      match.player1.emit('match_found', { opponent: player2DataStripped, roomId });
-      match.player2.emit('match_found', { opponent: player1DataStripped, roomId });
+      match.player1.emit('match_found', {
+        opponent: player2DataStripped,
+        gameId,
+      });
+      match.player2.emit('match_found', {
+        opponent: player1DataStripped,
+        gameId,
+      });
     }
   }
 
