@@ -1,4 +1,4 @@
-import type { ChatMessage } from "../../../../hooks/useChat";
+import type { ChatMessage } from "../../../../hooks/useChat_deprecated";
 
 export interface ChatMessageProps {
     message: ChatMessage;

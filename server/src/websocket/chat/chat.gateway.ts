@@ -13,10 +13,6 @@ import { GatewayService } from '../gateway.service';
 
 @WebSocketGateway({
   namespace: 'chat',
-  cors: {
-    origin: '*',
-    credentials: true,
-  },
 })
 export class ChatGateway extends BaseGateway {
   @WebSocketServer() server!: Server;
@@ -34,7 +30,7 @@ export class ChatGateway extends BaseGateway {
   }
 
   @SubscribeMessage('leave_room')
-  handleLeaveRoom() { }
+  handleLeaveRoom() {}
 
   @SubscribeMessage('message')
   handleMessage(

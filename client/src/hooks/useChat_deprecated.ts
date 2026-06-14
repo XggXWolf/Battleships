@@ -9,11 +9,11 @@ export interface ChatMessage {
     timestamp: Date;
 }
 
-export default function useChat(roomId: string) {
+export default function useChat(gameId: string) {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
 
     useEffect(() => {
-        chatSocket.emit("join_room", roomId);
+        chatSocket.emit("join_room", gameId);
 
         chatSocket.on("message", (message: ChatMessage) => {
             const currentUser = JSON.parse(
@@ -32,12 +32,12 @@ export default function useChat(roomId: string) {
 
         return () => {
             chatSocket.off("message");
-            chatSocket.emit("leave_room", roomId);
+            chatSocket.emit("leave_room", gameId);
         };
-    }, [roomId]);
+    }, [gameId]);
 
     const sendMessage = (content: string) => {
-        chatSocket.emit("message", { roomId, content });
+        chatSocket.emit("message", { gameId, content });
     };
 
     return { messages, sendMessage };

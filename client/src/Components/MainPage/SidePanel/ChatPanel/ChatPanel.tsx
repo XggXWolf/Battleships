@@ -1,12 +1,11 @@
 import { useState } from "react";
-import useChat from "../../../../hooks/useChat";
 import ChatMessage from "./ChatMessage";
-import useSocket from "../../../../hooks/useSocket";
-import { chatSocket } from "../../../../lib/socket";
+import { useChatStore } from "../../../../stores/useChatStore";
+import { useGameStore } from "../../../../stores/useGameStore";
 
 export default function ChatPanel() {
-    useSocket(chatSocket);
-    const { messages, sendMessage } = useChat("testRoom");
+    const { messages, sendMessage } = useChatStore();
+    const gameId = useGameStore((state) => state.gameId);
     const [messageInput, setMessageInput] = useState("");
 
     return (
@@ -34,7 +33,7 @@ export default function ChatPanel() {
                     className="bg-blue-600 hover:bg-blue-700 p-3 rounded-r-lg font-semibold transition hover:cursor-pointer"
                     onClick={() => {
                         console.log("Sending message:", messageInput);
-                        sendMessage(messageInput);
+                        sendMessage(gameId!, messageInput);
                         setMessageInput("");
                     }}
                 >
