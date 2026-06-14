@@ -6,25 +6,20 @@ import PlayerInfo from "./PlayerInfo";
 import MobileNavDropdownMenu from "./Mobile/MobileNavDropdownMenu";
 import { NavLink, useLocation } from "react-router";
 import { isTokenExpired } from "../../../util/authFunctions";
-import type { PlayerData } from "../../../types/playerData";
 import { truncateRank } from "../../../util/rankFunctions";
+import { useUserStore } from "../../../stores/useUserStore";
 
 export default function Header() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const [isLoggedIn, setIsLoggedIn] = useState(false); // Placeholder for auth state
-    const [playerData, setPlayerData] = useState<PlayerData>({} as PlayerData);
+    const { user } = useUserStore();
 
     useEffect(() => {
         if (isTokenExpired()) {
             localStorage.clear();
             setIsLoggedIn(false);
             return;
-        }
-
-        const storedPlayerData = localStorage.getItem("user");
-        if (storedPlayerData) {
-            setPlayerData(JSON.parse(storedPlayerData));
         }
 
         setIsLoggedIn(true);
@@ -61,12 +56,9 @@ export default function Header() {
                     {isLoggedIn ? (
                         <div className="flex items-center space-x-2 sm:space-x-4 ml-2 md:ml-8">
                             <PlayerInfo
-                                playerRank={truncateRank(
-                                    playerData.elo,
-                                    playerData.role,
-                                )}
-                                playerName={playerData.nickname}
-                                playerElo={playerData.elo}
+                                playerRank={truncateRank(user.elo, user.role)}
+                                playerName={user.nickname}
+                                playerElo={user.elo}
                             />
                             <MobileNavMenu onClick={toggleMobileMenu} />
                         </div>

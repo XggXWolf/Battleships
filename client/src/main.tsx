@@ -14,6 +14,7 @@ import ResetPassword from "./Pages/ResetPassword/ResetPassword.tsx";
 import { isTokenExpired } from "./util/authFunctions.ts";
 import useSocket from "./hooks/useSocket.ts";
 import { lobbySocket } from "./lib/socket.ts";
+import { useUserStore } from "./stores/useUserStore.ts";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -92,28 +93,6 @@ const router = createBrowserRouter([
     },
 ]);
 
-async function fetchUserData() {
-    if (isTokenExpired()) {
-        localStorage.clear();
-        return;
-    }
-
-    const token = localStorage.getItem("access_token");
-
-    const res = await fetch(`${BACKEND_URL}/users/me`, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-        },
-    });
-
-    if (res.ok) {
-        const data = await res.json();
-        localStorage.setItem("user", JSON.stringify(data));
-    }
-}
-
 function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
     useSocket(lobbySocket);
     return children;
@@ -137,6 +116,33 @@ function ReverseProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
+    const { user, setUser } = useUserStore();
+
+    async function fetchUserData() {
+        if (isTokenExpired()) {
+            localStorage.clear();
+            return;
+        }
+
+        const token = localStorage.getItem("access_token");
+
+        const res = await fetch(`${BACKEND_URL}/users/me`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            localStorage.setItem("user", JSON.stringify(data));
+            setUser(data);
+
+            console.log("User data fetched and stored in Zustand:", data);
+        }
+    }
+
     useEffect(() => {
         void fetchUserData();
     }, []);

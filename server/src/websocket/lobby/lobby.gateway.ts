@@ -14,7 +14,7 @@ import { UseGuards } from '@nestjs/common';
 @UseGuards(WsReadyGuard)
 @WebSocketGateway({ namespace: 'lobby' })
 export class LobbyGateway extends BaseGateway {
-  async handleConnection(client: any): Promise<void> {
+  async handleConnection(client: Socket): Promise<void> {
     await super.handleConnection(client);
   }
 
@@ -36,7 +36,7 @@ export class LobbyGateway extends BaseGateway {
     this.lobbyGatewayService.handleQueueLeave(client);
   }
 
-  handleDisconnect(client: any): void {
+  handleDisconnect(client: Socket): void {
     this.lobbyGatewayService.handleQueueLeave(client);
     super.handleDisconnect(client);
   }

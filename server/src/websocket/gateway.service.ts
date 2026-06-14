@@ -10,9 +10,9 @@ export class GatewayService {
   constructor(
     protected readonly jwtService: JwtService,
     protected readonly usersService: UsersService,
-  ) { }
+  ) {}
 
-  async handleConnection(client: any): Promise<void> {
+  async handleConnection(client: Socket): Promise<void> {
     const token = client.handshake.auth?.token;
 
     if (!token) {
@@ -48,7 +48,7 @@ export class GatewayService {
     console.log('Online users:', this.onlineUsers.size);
   }
 
-  async handleDisconnect(client: any): Promise<void> {
+  async handleDisconnect(client: Socket): Promise<void> {
     this.onlineUsers.delete(client.data.sub);
     console.log('Client disconnected:', client.id);
     console.log('Online users:', this.onlineUsers.size);

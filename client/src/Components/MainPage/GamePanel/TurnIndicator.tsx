@@ -1,9 +1,8 @@
-//TO-DO: Hook game state with Zustand and display current turn, game status, etc.
-export default function TurnIndicator({
-    currentTurn,
-}: {
-    currentTurn?: "player" | "opponent" | null; // null for "Standing By"
-}) {
+import { useGameStore } from "../../../stores/useGameStore";
+
+export default function TurnIndicator() {
+    const { currentTurn } = useGameStore();
+
     switch (currentTurn) {
         case "player":
             return (

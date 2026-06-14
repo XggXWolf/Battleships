@@ -1,17 +1,16 @@
 import React from "react";
 import "./GameGrid.css";
 import GridButton from "./GridButton";
+import { useGameStore } from "../../../stores/useGameStore";
 
 const GRID_SIZE = 10;
 
-interface GameGridProps {
-    currentTurn?: "player" | "opponent" | null; // TO-DO: Hook with Zustand to get current turn, null for "Standing By"
-}
-
-export default function GameGrid({ currentTurn }: GameGridProps) {
+export default function GameGrid() {
     const [clickedCells, setClickedCells] = React.useState<Set<string>>(
         new Set(),
     );
+
+    const { currentTurn } = useGameStore();
 
     const handleCellClick = (row: number, col: number) => {
         const cellKey = `${row}-${col}`;

@@ -4,7 +4,7 @@ import {
   OnGatewayDisconnect,
   OnGatewayInit,
 } from '@nestjs/websockets';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { UsersService } from '../users/users.service';
 import { GatewayService } from './gateway.service';
 
@@ -15,11 +15,11 @@ export abstract class BaseGateway
 
   afterInit(server: Server) {}
 
-  handleConnection(client: any) {
+  handleConnection(client: Socket) {
     this.gatewayService.handleConnection(client);
   }
 
-  handleDisconnect(client: any) {
+  handleDisconnect(client: Socket) {
     this.gatewayService.handleDisconnect(client);
   }
 }

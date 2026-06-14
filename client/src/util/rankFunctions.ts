@@ -10,7 +10,7 @@ const rankMap: Record<string, string> = {
     moderator: "MOD",
     admin: "ADMIN",
 };
-export function truncateRank(elo: number, role?: string): string {
+export function truncateRank(elo?: number, role?: string): string {
     const rank = getRankFromElo(elo);
 
     switch (role) {
@@ -23,7 +23,7 @@ export function truncateRank(elo: number, role?: string): string {
     }
 }
 
-export function getRankFromElo(elo: number): string {
+export function getRankFromElo(elo?: number): string {
     if (!elo) return "Unranked";
 
     if (elo < 1200) return "Ensign";

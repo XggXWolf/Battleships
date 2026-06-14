@@ -7,6 +7,7 @@ import FormLogo from "../Shared/Form/FormLogo";
 import "../Shared/Form/Form.css";
 
 import GoogleSignIn from "../Shared/Form/GoogleSignIn";
+import { useUserStore } from "../../stores/useUserStore";
 
 interface RegisterFormData {
     nickname: string;
@@ -22,6 +23,8 @@ export default function RegisterContainer() {
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
+    const { setUser } = useUserStore(); 
+    
     const {
         register,
         handleSubmit,
@@ -53,7 +56,8 @@ export default function RegisterContainer() {
 
             localStorage.setItem("access_token", body.access_token);
             localStorage.setItem("user", JSON.stringify(body.user));
-            //window.location.href = "/";
+            setUser(body.user);
+            window.location.href = "/";
         } catch (err) {
             setError("An error occurred while registering.");
         } finally {

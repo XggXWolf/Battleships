@@ -6,3 +6,9 @@ export interface PlayerData {
     isProfileComplete: boolean;
     elo: number;
 }
+
+export interface OpponentData {
+    nickname: string;
+    elo: number;
+    role: "user" | "admin";
+}

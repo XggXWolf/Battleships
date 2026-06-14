@@ -34,31 +34,37 @@ export class LobbyGatewayService {
       match.player1.leave('queue');
       match.player2.leave('queue');
 
-      const gameId = this.gameService.createGame(
+      const { gameId, turn } = this.gameService.createGame(
         match.player1.data.sub,
         match.player2.data.sub,
       );
 
-
       let player1DataStripped = {
-        username: match.player1.data.username,
+        nickname: match.player1.data.nickname,
         elo: match.player1.data.elo,
-        sub: match.player1.data.sub,
+        id: match.player1.data.sub,
+        role: match.player1.data.role,
       };
 
       let player2DataStripped = {
-        username: match.player2.data.username,
+        nickname: match.player2.data.nickname,
         elo: match.player2.data.elo,
-        sub: match.player2.data.sub,
+        id: match.player2.data.sub,
+        role: match.player2.data.role,
       };
 
+      console.log('player1DataStripped:', player1DataStripped);
+      console.log('player2DataStripped:', player2DataStripped);
+
       match.player1.emit('match_found', {
-        opponent: player2DataStripped,
         gameId,
+        turn,
+        opponent: player2DataStripped,
       });
       match.player2.emit('match_found', {
-        opponent: player1DataStripped,
         gameId,
+        turn,
+        opponent: player1DataStripped,
       });
     }
   }

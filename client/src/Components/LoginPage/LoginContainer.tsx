@@ -6,6 +6,7 @@ import ErrorMessage from "../Shared/ErrorMessage";
 import FormLogo from "../Shared/Form/FormLogo";
 import "../Shared/Form/Form.css";
 import GoogleSignIn from "../Shared/Form/GoogleSignIn";
+import { useUserStore } from "../../stores/useUserStore";
 
 interface LoginFormData {
     email: string; // or email
@@ -16,6 +17,8 @@ interface LoginFormData {
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function LoginContainer() {
+    const { setUser } = useUserStore();
+
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
@@ -53,7 +56,8 @@ export default function LoginContainer() {
 
             localStorage.setItem("access_token", body.access_token);
             localStorage.setItem("user", JSON.stringify(body.user));
-            //window.location.href = "/";
+            setUser(body.user);
+            window.location.href = "/";
         } catch (err) {
             console.error("Login error:", err);
             setError("An error occurred while logging in.");

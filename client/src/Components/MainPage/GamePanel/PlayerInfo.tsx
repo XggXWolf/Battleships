@@ -1,40 +1,22 @@
-import { useEffect, useState } from "react";
 import { truncateRank } from "../../../util/rankFunctions";
 import TurnIndicator from "./TurnIndicator";
-import { isTokenExpired } from "../../../util/authFunctions";
-import type { PlayerData } from "../../../types/playerData";
+import { useUserStore } from "../../../stores/useUserStore";
+import { useEffect } from "react";
+import { useGameStore } from "../../../stores/useGameStore";
 
 interface PlayerInfoProps {
     type: "player" | "opponent";
-    currentTurn?: "player" | "opponent" | null; // null for "Standing By"
     showTurnIndicator?: boolean;
     showAddFriendButton?: boolean;
 }
 
 export default function PlayerInfo({
     type,
-    currentTurn,
     showTurnIndicator,
     showAddFriendButton,
 }: PlayerInfoProps) {
-    const [playerData, setPlayerData] = useState<PlayerData>({} as PlayerData);
-
-    useEffect(() => {
-        let playerData = {} as PlayerData;
-
-        if (type === "player") {
-            if (isTokenExpired()) {
-                localStorage.clear();
-                return;
-            }
-
-            playerData = JSON.parse(
-                localStorage.getItem("user") || "{}",
-            ) as PlayerData;
-        }
-
-        setPlayerData(playerData);
-    }, []);
+    const { user } = useUserStore();
+    const { opponentData } = useGameStore();
 
     return (
         <div className="bg-primary p-3 rounded-xl shadow-lg border border-color-border shrink-0">
@@ -46,15 +28,29 @@ export default function PlayerInfo({
                         <span
                             className={` text-xs font-bold px-2 py-0.5 rounded border uppercase tracking-wide mr-2 shadow-sm ${type === "player" ? "bg-green-900/80 text-green-100 border-green-700" : "bg-red-900/80 text-red-100 border-red-700"} `}
                         >
-                            {truncateRank(playerData.elo, playerData.role)}
+                            {type === "player"
+                                ? truncateRank(user.elo, user.role)
+                                : truncateRank(
+                                      opponentData?.elo,
+                                      opponentData?.role,
+                                  )}
                         </span>
-                        {playerData.nickname}
+                        {type === "player"
+                            ? user.nickname
+                            : opponentData
+                              ? opponentData.nickname
+                              : "Opponent"}
                     </span>
 
                     <span
                         className={`text-sm font-semibold px-3 py-1 rounded-full whitespace-nowrap ${type === "player" ? "bg-green-800 text-green-300" : "bg-red-800 text-red-300"}`}
                     >
-                        ELO: {playerData.elo}
+                        ELO:{" "}
+                        {type === "player"
+                            ? user.elo
+                            : opponentData
+                              ? opponentData.elo
+                              : "N/A"}
                     </span>
                 </div>
 
@@ -66,7 +62,7 @@ export default function PlayerInfo({
                         className="transition-all duration-300 ease-in-out"
                     >
                         {/*TO-DO: Hook with zustand */}
-                        <TurnIndicator currentTurn={currentTurn} />
+                        <TurnIndicator />
                     </div>
                 )}
 
@@ -81,7 +77,7 @@ export default function PlayerInfo({
                                      rounded-lg transition-all duration-200 
                                      active:scale-95 shadow-sm cursor-pointer hover:shadow-[0_0_15px_rgba(59,130,246,0.4)]"
                     >
-                        Add Friend
+                        <span className="font-bold">+</span>Add Friend
                     </button>
                 )}
             </div>
