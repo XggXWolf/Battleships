@@ -11,6 +11,16 @@ export class GameService {
     return `${sortedIds[0]}_${sortedIds[1]}-${Date.now()}`;
   }
 
+  onGameJoin(gameId: string, userId: string) {
+    const game = this.activeGames.get(gameId);
+    if (!game) {
+      throw new Error('Game not found');
+    }
+
+    const ships = game.placeShips(userId);
+    return { phase: game.currentPhase, shipBoard: ships };
+  }
+
   createGame(player1Id: string, player2Id: string) {
     const gameId = this.generateGameId(player1Id, player2Id);
     const game = new Game(player1Id, player2Id);

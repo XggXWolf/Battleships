@@ -10,9 +10,11 @@ import { Server, Socket } from 'socket.io';
 import { BaseGateway } from '../base.gateway';
 import { ChatMessage } from '../../types/chatMessage';
 import { GatewayService } from '../gateway.service';
+import { WS_CORS } from '../gateway.config';
 
 @WebSocketGateway({
   namespace: 'chat',
+  cors: WS_CORS,
 })
 export class ChatGateway extends BaseGateway {
   @WebSocketServer() server!: Server;

@@ -11,6 +11,7 @@ import { Position } from './game.types';
 import { GameService } from './game.service';
 import { UseGuards } from '@nestjs/common';
 import { WsReadyGuard } from '../../guards/ws-ready.guard';
+import { WS_CORS } from '../gateway.config';
 
 interface GameData {
   pos: Position;
@@ -18,7 +19,7 @@ interface GameData {
 }
 
 @UseGuards(WsReadyGuard)
-@WebSocketGateway({ namespace: 'game' })
+@WebSocketGateway({ namespace: 'game', cors: WS_CORS })
 export class GameGateway extends BaseGateway {
   @WebSocketServer() server!: Server;
   constructor(
@@ -32,6 +33,21 @@ export class GameGateway extends BaseGateway {
   handleJoinGame(client: Socket, gameId: string): void {
     client.join(gameId);
     console.log(`Client ${client.id} joined game ${gameId}`);
+
+    const { phase, shipBoard } = this.gameService.onGameJoin(
+      gameId,
+      client.data.sub,
+    );
+
+    client.emit('placed_ships', {
+      shipBoard,
+    });
+
+    if (phase === 'active') {
+      this.server.to(gameId).emit('placement_complete', {
+        phase,
+      });
+    }
   }
 
   @SubscribeMessage('fire_shot')

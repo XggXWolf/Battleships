@@ -34,6 +34,7 @@ export class GatewayService {
       Object.assign(client.data, { elo, ...decoded });
 
       client.data.ready = true;
+      client.emit('ready');
     } catch (error) {
       console.log(
         'Unauthorized connection attempt:',

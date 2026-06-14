@@ -5,7 +5,7 @@ import { useGameStore } from "../../../../stores/useGameStore";
 
 export default function ChatPanel() {
     const { messages, sendMessage } = useChatStore();
-    const gameId = useGameStore((state) => state.gameId);
+    const gameId = useGameStore((s) => s.gameId);
     const [messageInput, setMessageInput] = useState("");
 
     return (

@@ -5,16 +5,23 @@ import { useChatStore } from "../stores/useChatStore";
 import { useGameStore } from "../stores/useGameStore";
 import type { ChatMessage } from "../hooks/useChat_deprecated";
 import { useUserStore } from "../stores/useUserStore";
+import useGame from "../hooks/useGame";
 
-function GameSession() {
+export default function GameSession() {
     useSocket(chatSocket);
     useSocket(gameSocket);
+    useGame();
 
     const { addMessage, clearMessages } = useChatStore();
     const { gameId } = useGameStore();
 
     useEffect(() => {
-        chatSocket.emit("join_room", gameId);
+        const joinChatRoom = () => {
+            console.log("Joining chat room with gameId:", gameId);
+            chatSocket.emit("join_room", gameId + "-chat");
+        };
+
+        chatSocket.once("ready", joinChatRoom);
 
         chatSocket.on("message", (message: ChatMessage) => {
             const user = useUserStore.getState().user;
@@ -31,6 +38,7 @@ function GameSession() {
 
         return () => {
             chatSocket.off("message");
+            chatSocket.off("ready", joinChatRoom);
             chatSocket.emit("leave_room", gameId);
             clearMessages();
         };

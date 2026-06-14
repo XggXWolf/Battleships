@@ -21,6 +21,14 @@ export class Game {
     this.turn = player1Id;
   }
 
+  getShots(userId: string): Position[] {
+    return this.shots.get(userId) ?? [];
+  }
+
+  getShips(userId: string): Ship[] {
+    return this.boards.get(userId) ?? [];
+  }
+
   private occupies = (s: Ship): string[] => {
     let positions = [] as string[];
     for (let i = 0; i < s.size; i++) {
@@ -82,7 +90,7 @@ export class Game {
         this.phase = 'active';
       }
 
-      return true;
+      return placed;
     }
 
     if (ships.length !== 5) {
@@ -91,7 +99,7 @@ export class Game {
 
     // NOT IMPLEMENTED: Manual ship placement
 
-    return false;
+    return null;
   }
 
   private bothPlaced() {
@@ -113,7 +121,7 @@ export class Game {
     userId: string,
     position: Position,
   ): {
-    hitShip: Ship | null;
+    isHit: boolean;
     sunk: boolean;
     won: boolean;
     position: Position;
@@ -170,7 +178,7 @@ export class Game {
       this.turn = opponentId;
     }
 
-    return { hitShip, sunk, won, position };
+    return { isHit: !!hitShip, sunk, won, position };
   }
 
   getWinner() {

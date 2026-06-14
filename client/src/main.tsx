@@ -149,8 +149,4 @@ function App() {
     return <RouterProvider router={router} />;
 }
 
-createRoot(document.getElementById("root")!).render(
-    <StrictMode>
-        <App />
-    </StrictMode>,
-);
+createRoot(document.getElementById("root")!).render(<App />);

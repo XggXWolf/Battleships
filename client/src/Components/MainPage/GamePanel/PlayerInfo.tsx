@@ -1,7 +1,6 @@
 import { truncateRank } from "../../../util/rankFunctions";
 import TurnIndicator from "./TurnIndicator";
 import { useUserStore } from "../../../stores/useUserStore";
-import { useEffect } from "react";
 import { useGameStore } from "../../../stores/useGameStore";
 
 interface PlayerInfoProps {

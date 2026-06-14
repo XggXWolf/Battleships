@@ -10,9 +10,10 @@ import { LobbyGatewayService } from './lobby.gateway.service';
 import { GatewayService } from '../gateway.service';
 import { WsReadyGuard } from '../../guards/ws-ready.guard';
 import { UseGuards } from '@nestjs/common';
+import { WS_CORS } from '../gateway.config';
 
 @UseGuards(WsReadyGuard)
-@WebSocketGateway({ namespace: 'lobby' })
+@WebSocketGateway({ namespace: 'lobby', cors: WS_CORS })
 export class LobbyGateway extends BaseGateway {
   async handleConnection(client: Socket): Promise<void> {
     await super.handleConnection(client);

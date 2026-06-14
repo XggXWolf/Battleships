@@ -1,11 +1,9 @@
-import { JwtService } from '@nestjs/jwt';
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   OnGatewayInit,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { UsersService } from '../users/users.service';
 import { GatewayService } from './gateway.service';
 
 export abstract class BaseGateway
