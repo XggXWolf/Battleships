@@ -50,10 +50,15 @@ export class GameGateway extends BaseGateway {
     }
   }
 
+  // TO-DO : fetch gameId from active games in gateway service instead of client sending it
   @SubscribeMessage('fire_shot')
   handleFireShot(client: Socket, data: GameData): void {
     const userId = client.data.sub;
     const { pos, gameId } = data;
+
+    console.log(
+      `Client ${client.id} fired a shot in game ${gameId} at position (${pos.x}, ${pos.y})`,
+    );
 
     try {
       const result = this.gameService.fire(gameId, userId, pos);

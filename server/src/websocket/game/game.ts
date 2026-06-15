@@ -113,8 +113,9 @@ export class Game {
     );
   }
 
+  // Bug: Doesnt this thing accept float values ?
   private isWithinBounds(pos: Position): boolean {
-    return pos.x >= 0 && pos.x < 10 && pos.y >= 0 && pos.y < 10;
+    return pos.x >= 1 && pos.x <= 10 && pos.y >= 1 && pos.y <= 10;
   }
 
   fire(
@@ -125,6 +126,7 @@ export class Game {
     sunk: boolean;
     won: boolean;
     position: Position;
+    turn: string;
   } {
     if (this.phase !== 'active') {
       throw new Error('Game is not in active phase');
@@ -178,7 +180,7 @@ export class Game {
       this.turn = opponentId;
     }
 
-    return { isHit: !!hitShip, sunk, won, position };
+    return { isHit: !!hitShip, sunk, won, position, turn: this.turn };
   }
 
   getWinner() {

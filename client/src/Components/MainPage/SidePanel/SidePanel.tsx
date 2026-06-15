@@ -1,9 +1,10 @@
 import { useState } from "react";
 import ChatPanel from "./ChatPanel/ChatPanel";
 import LobbyPanel from "./LobbyPanel/LobbyPanel";
+import { useGameStore } from "../../../stores/useGameStore";
 
 export default function SidePanel() {
-    const [activeTab, setActiveTab] = useState<"lobby" | "chat">("lobby");
+    const gameId = useGameStore((s) => s.gameId);
 
     return (
         <div className="lg:col-span-1 flex flex-col min-h-100">
@@ -11,10 +12,8 @@ export default function SidePanel() {
                 id="side-panel"
                 className="bg-primary p-6 rounded-xl shadow-lg border border-color-border flex flex-col h-full overflow-hidden"
             >
-                {activeTab === "lobby" && (
-                    <LobbyPanel onGameJoin={setActiveTab} />
-                )}
-                {activeTab === "chat" && <ChatPanel />}
+                {!gameId && <LobbyPanel />}
+                {gameId && <ChatPanel />}
             </div>
         </div>
     );

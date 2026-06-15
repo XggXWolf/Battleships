@@ -1,4 +1,4 @@
-import React from "react";
+import { Fragment, type CSSProperties } from "react";
 import "./GameGrid.css";
 import GridButton from "./GridButton";
 import { useGameStore } from "../../../stores/useGameStore";
@@ -6,16 +6,7 @@ import { useGameStore } from "../../../stores/useGameStore";
 const GRID_SIZE = 10;
 
 export default function GameGrid() {
-    const [clickedCells, setClickedCells] = React.useState<Set<string>>(
-        new Set(),
-    );
-
     const { currentTurn } = useGameStore();
-
-    const handleCellClick = (row: number, col: number) => {
-        const cellKey = `${row}-${col}`;
-        setClickedCells((prev) => new Set(prev).add(cellKey));
-    };
 
     const glows = {
         default: {
@@ -43,7 +34,7 @@ export default function GameGrid() {
     return (
         <div
             className="grow bg-primary p-3 sm:p-4 rounded-xl shadow-lg border border-[rgb(var(--glow-rgb))] flex flex-col items-center justify-center min-h-0 transition-all duration-1000 animate-glow-heartbeat"
-            style={{ "--glow-rgb": currentGlow.rgb } as React.CSSProperties}
+            style={{ "--glow-rgb": currentGlow.rgb } as CSSProperties}
         >
             <div id="game-grid-container" className="w-full max-w-xl">
                 <div
@@ -61,27 +52,26 @@ export default function GameGrid() {
                     ))}
 
                     {/* Rows */}
-                    {Array.from({ length: GRID_SIZE }, (_, row) => (
-                        <React.Fragment key={`row-${row}`}>
-                            {/* Row label */}
-                            <div className="grid-label">{row + 1}</div>
+                    {Array.from({ length: GRID_SIZE }, (_, i) => {
+                        const row = i + 1; // 1-indexed
+                        return (
+                            <Fragment key={`row-${row}`}>
+                                {/* Row label */}
+                                <div className="grid-label">{row}</div>
 
-                            {/* Grid cells */}
-                            {Array.from({ length: GRID_SIZE }, (_, col) => (
-                                <GridButton
-                                    key={`cell-${row}-${col}`}
-                                    coordinates={{
-                                        row,
-                                        col,
-                                    }}
-                                    onClick={() => handleCellClick(row, col)}
-                                    isClicked={clickedCells.has(
-                                        `${row}-${col}`,
-                                    )}
-                                />
-                            ))}
-                        </React.Fragment>
-                    ))}
+                                {/* Grid cells */}
+                                {Array.from({ length: GRID_SIZE }, (_, j) => {
+                                    const col = j + 1; // 1-indexed
+                                    return (
+                                        <GridButton
+                                            key={`cell-${row}-${col}`}
+                                            coordinates={{ row, col }}
+                                        />
+                                    );
+                                })}
+                            </Fragment>
+                        );
+                    })}
                 </div>
             </div>
         </div>

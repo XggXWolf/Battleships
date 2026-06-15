@@ -1,13 +1,9 @@
 import { useState, type Dispatch, type SetStateAction } from "react";
 import useLobby from "../../../../hooks/useLobby";
 
-type LobbyPanelProps = {
-    onGameJoin: Dispatch<SetStateAction<"lobby" | "chat">>;
-};
-
-export default function LobbyPanel({ onGameJoin }: LobbyPanelProps) {
+export default function LobbyPanel() {
     const [inQueue, setInQueue] = useState(false);
-    const { joinQueue, leaveQueue } = useLobby(() => onGameJoin("chat"));
+    const { joinQueue, leaveQueue } = useLobby();
 
     function handlePlayRanked(): void {
         setInQueue(true);

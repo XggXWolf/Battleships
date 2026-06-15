@@ -6,6 +6,8 @@ export interface Position {
 
 export interface Ship {
     size: number;
-    pos: Position;
+    pos: Omit<Position, "hit">;
     rotation: "horizontal" | "vertical";
 }
+
+export type CellState = "Ship" | "HitShip" | "Miss" | "Vacant";
