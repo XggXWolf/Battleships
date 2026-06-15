@@ -3,9 +3,9 @@ import useSocket from "../hooks/useSocket";
 import { chatSocket, gameSocket } from "../lib/socket";
 import { useChatStore } from "../stores/useChatStore";
 import { useGameStore } from "../stores/useGameStore";
-import type { ChatMessage } from "../hooks/useChat_deprecated";
 import { useUserStore } from "../stores/useUserStore";
 import useGame from "../hooks/useGame";
+import type { ChatMessage } from "../types/chatMessage";
 
 export default function GameSession() {
     useSocket(chatSocket);

@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import type { ChatMessage } from "../hooks/useChat_deprecated";
 import { chatSocket } from "../lib/socket";
+import type { ChatMessage } from "../types/chatMessage";
 
 type ChatStore = {
     messages: ChatMessage[];
