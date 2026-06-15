@@ -66,13 +66,13 @@ export class Game {
           rotation = Math.random() < 0.5 ? 'horizontal' : 'vertical';
           if (rotation === 'horizontal') {
             pos = {
-              x: Math.floor(Math.random() * (10 - size + 1)),
+              x: Math.floor(Math.random() * (10 - size + 1)) + 1,
               y: Math.floor(Math.random() * 10),
             };
           } else {
             pos = {
               x: Math.floor(Math.random() * 10),
-              y: Math.floor(Math.random() * (10 - size + 1)),
+              y: Math.floor(Math.random() * (10 - size + 1)) + 1,
             };
           }
         } while (
