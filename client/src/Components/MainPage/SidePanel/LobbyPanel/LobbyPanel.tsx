@@ -1,4 +1,4 @@
-import { useState, type Dispatch, type SetStateAction } from "react";
+import { useState } from "react";
 import useLobby from "../../../../hooks/useLobby";
 
 export default function LobbyPanel() {

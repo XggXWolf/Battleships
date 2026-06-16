@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useGameStore } from "../../../stores/useGameStore";
 import ChatPanel from "./ChatPanel/ChatPanel";
 import LobbyPanel from "./LobbyPanel/LobbyPanel";
-import { useGameStore } from "../../../stores/useGameStore";
 
 export default function SidePanel() {
     const gameId = useGameStore((s) => s.gameId);

@@ -43,6 +43,11 @@ export class UsersController {
     return this.usersService.findMany(PaginationDto, user.role || 'user');
   }
 
+  @Get('keep-alive')
+  keepAlive() {
+    return { message: 'Server is alive' };
+  }
+
   @Get('me')
   findMe(@Req() { user }: Request) {
     return this.usersService.findMe(user!.sub!);

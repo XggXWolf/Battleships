@@ -1,4 +1,4 @@
-import { StrictMode, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, Navigate } from "react-router";
 import { RouterProvider } from "react-router/dom";
@@ -16,6 +16,7 @@ import useSocket from "./hooks/useSocket.ts";
 import { lobbySocket } from "./lib/socket.ts";
 import { useUserStore } from "./stores/useUserStore.ts";
 import ErrorBanner from "./Components/Shared/ErrorBanner.tsx";
+import KeepAlive from "./Components/Shared/KeepAlive.tsx";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -180,6 +181,7 @@ function App() {
     return (
         <>
             {errorMessage && <ErrorBanner message={errorMessage} />}
+            <KeepAlive />
             <RouterProvider router={router} />
         </>
     );

@@ -1,9 +1,9 @@
 import { Fragment, type CSSProperties } from "react";
+import { chatSocket, gameSocket } from "../../../lib/socket";
+import { useGameStore } from "../../../stores/useGameStore";
+import { useUserStore } from "../../../stores/useUserStore";
 import "./GameGrid.css";
 import GridButton from "./GridButton";
-import { useGameStore } from "../../../stores/useGameStore";
-import { chatSocket, gameSocket } from "../../../lib/socket";
-import { useUserStore } from "../../../stores/useUserStore";
 
 const GRID_SIZE = 10;
 
@@ -92,7 +92,7 @@ export default function GameGrid() {
 
                             {/* Return to Lobby Button */}
                             <button
-                                className="mt-2 px-6 py-2 w-full rounded-md font-medium text-white transition-colors bg-[#21262d] hover:bg-[#30363d] border border-[#363b42] active:scale-[0.98]"
+                                className="mt-2 px-6 py-2 w-full rounded-md font-medium text-white transition-colors bg-[#21262d] hover:bg-color-border border border-[#363b42] active:scale-[0.98]"
                                 onClick={gameOver}
                             >
                                 Return to Lobby
