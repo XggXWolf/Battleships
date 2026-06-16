@@ -33,17 +33,17 @@ export default function useGame() {
             const currentTurn = useGameStore.getState().currentTurn;
             const playerId = useUserStore.getState().user.id;
 
-            if (won) {
-                setWinner(currentTurn);
-                setGameStatus("finished");
-                return;
-            }
-
             if (currentTurn === "player") {
                 addHit({ hit: isHit, ...position });
             } else {
                 addEnemyHit({ hit: isHit, ...position });
                 console.log(enemyHits);
+            }
+
+            if (won) {
+                setWinner(currentTurn);
+                setGameStatus("finished");
+                return;
             }
 
             setCurrentTurn(turn === playerId ? "player" : "opponent");

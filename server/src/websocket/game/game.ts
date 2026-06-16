@@ -67,11 +67,11 @@ export class Game {
           if (rotation === 'horizontal') {
             pos = {
               x: Math.floor(Math.random() * (10 - size + 1)) + 1,
-              y: Math.floor(Math.random() * 10),
+              y: Math.floor(Math.random() * 10) + 1,
             };
           } else {
             pos = {
-              x: Math.floor(Math.random() * 10),
+              x: Math.floor(Math.random() * 10) + 1,
               y: Math.floor(Math.random() * (10 - size + 1)) + 1,
             };
           }
