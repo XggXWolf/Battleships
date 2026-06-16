@@ -20,6 +20,7 @@ import { Roles } from '../decorators/roles.decorator';
 import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
 import { SkipProfileCheck } from '../decorators/skip-profile-check.decorator';
 import { CompleteProfileDto } from './dto/complete-profile.dto';
+import { SkipAuth } from '../decorators/skip-auth.decorator';
 
 @Roles(['admin', 'user']) // Default roles for all routes in this controller, can be overridden by specific routes
 @Controller('users')
@@ -43,6 +44,7 @@ export class UsersController {
     return this.usersService.findMany(PaginationDto, user.role || 'user');
   }
 
+  @SkipAuth()
   @Get('keep-alive')
   keepAlive() {
     return { message: 'Server is alive' };
