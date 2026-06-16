@@ -40,4 +40,13 @@ export class GameService {
 
     return game.fire(userId, pos);
   }
+
+  getPhase(gameId: string) {
+    const game = this.activeGames.get(gameId);
+    if (!game) {
+      throw new Error('Game not found');
+    }
+
+    return game.currentPhase;
+  }
 }

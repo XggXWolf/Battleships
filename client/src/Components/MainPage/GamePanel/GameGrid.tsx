@@ -2,11 +2,20 @@ import { Fragment, type CSSProperties } from "react";
 import "./GameGrid.css";
 import GridButton from "./GridButton";
 import { useGameStore } from "../../../stores/useGameStore";
+import { chatSocket, gameSocket } from "../../../lib/socket";
+import { useUserStore } from "../../../stores/useUserStore";
 
 const GRID_SIZE = 10;
 
 export default function GameGrid() {
-    const { currentTurn } = useGameStore();
+    const { currentTurn, gameStatus, resetGame, eloChange } = useGameStore();
+    const currentElo = useUserStore.getState().user.elo;
+
+    function gameOver() {
+        resetGame();
+        chatSocket.disconnect();
+        gameSocket.disconnect();
+    }
 
     const glows = {
         default: {
@@ -36,7 +45,62 @@ export default function GameGrid() {
             className="grow bg-primary p-3 sm:p-4 rounded-xl shadow-lg border border-[rgb(var(--glow-rgb))] flex flex-col items-center justify-center min-h-0 transition-all duration-1000 animate-glow-heartbeat"
             style={{ "--glow-rgb": currentGlow.rgb } as CSSProperties}
         >
-            <div id="game-grid-container" className="w-full max-w-xl">
+            <div id="game-grid-container" className="relative w-full max-w-xl">
+                {gameStatus === "finished" && (
+                    <div className="absolute inset-0 z-20 flex items-center justify-center bg-root/80 backdrop-blur-sm rounded-lg overflow-hidden">
+                        {/* Overlay Card */}
+                        <div className="flex flex-col items-center gap-6 p-8 rounded-xl bg-primary border border-color-border shadow-2xl">
+                            {currentTurn === "player" ? (
+                                <div className="flex flex-col items-center gap-1">
+                                    <h2 className="text-3xl font-bold text-green-400 tracking-wide">
+                                        VICTORY
+                                    </h2>
+                                    <div className="mt-4 flex flex-col items-center">
+                                        <span className="text-[#8b949e] text-sm font-medium">
+                                            Rank Rating
+                                        </span>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <span className="text-2xl font-semibold text-white">
+                                                {currentElo}
+                                            </span>
+                                            <span className="text-lg font-medium text-green-400">
+                                                {eloChange && `+${eloChange}`}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex flex-col items-center gap-1">
+                                    <h2 className="text-3xl font-bold text-red-400 tracking-wide">
+                                        DEFEAT
+                                    </h2>
+                                    <div className="mt-4 flex flex-col items-center">
+                                        <span className="text-[#8b949e] text-sm font-medium">
+                                            Rank Rating
+                                        </span>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <span className="text-2xl font-semibold text-white">
+                                                {currentElo}
+                                            </span>
+                                            <span className="text-lg font-medium text-red-400">
+                                                {eloChange && `-${eloChange}`}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Return to Lobby Button */}
+                            <button
+                                className="mt-2 px-6 py-2 w-full rounded-md font-medium text-white transition-colors bg-[#21262d] hover:bg-[#30363d] border border-[#363b42] active:scale-[0.98]"
+                                onClick={gameOver}
+                            >
+                                Return to Lobby
+                            </button>
+                        </div>
+                    </div>
+                )}
+
                 <div
                     id="game-grid"
                     className="grid grid-cols-[1rem_repeat(10,1fr)] grid-rows-[1rem_repeat(10,1fr)] gap-0.5 w-full"

@@ -43,7 +43,13 @@ export class ChatGateway extends BaseGateway {
     console.log('Client rooms:', client.rooms);
     console.log('Received message:', message);
 
-    if (!message.roomId) return;
+    const roomId = [...client.rooms].find((room) => room.endsWith('-chat'));
+    if (!roomId) {
+      console.warn(
+        `Client ${client.id} is not in a chat room, ignoring message`,
+      );
+      return;
+    }
 
     let chatMessage = {
       senderNickname: client.data.nickname,
@@ -51,7 +57,7 @@ export class ChatGateway extends BaseGateway {
       timestamp: new Date(),
     };
 
-    console.log('Sending message to room', message.roomId, ':', chatMessage);
-    this.server.to(message.roomId).emit('message', chatMessage);
+    console.log('Sending message to room', roomId, ':', chatMessage);
+    this.server.to(roomId).emit('message', chatMessage);
   }
 }

@@ -31,6 +31,7 @@ export default function GameSession() {
                 message.type = "opponent";
             }
 
+            console.log("Received message:", message);
             message.uuid = `${message.senderNickname}-${message.timestamp}`;
 
             addMessage(message);

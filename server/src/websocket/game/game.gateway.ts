@@ -63,6 +63,15 @@ export class GameGateway extends BaseGateway {
     try {
       const result = this.gameService.fire(gameId, userId, pos);
       this.server.to(gameId).emit('fire_result', result);
+
+      const currentPhase = this.gameService.getPhase(gameId);
+      if (currentPhase === 'finished') {
+        this.gameService.removeGame(gameId);
+        this.server.to(gameId).emit('game_result', {
+          eloChange: 10, // Placeholder for actual ELO change calculation
+        });
+        console.log(`Game ${gameId} has finished and been removed.`);
+      }
     } catch (err) {
       client.emit('error', {
         message: err instanceof Error ? err.message : 'Unknown error',

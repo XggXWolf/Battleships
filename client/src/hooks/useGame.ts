@@ -17,6 +17,7 @@ export default function useGame() {
         setShipBoard,
         addHit,
         addEnemyHit,
+        setEloChange,
     } = useGameStore();
 
     useEffect(() => {
@@ -27,6 +28,10 @@ export default function useGame() {
         gameSocket.on("placed_ships", ({ shipBoard }) => {
             setShipBoard(shipBoard);
             console.log("Received ship board:", shipBoard);
+        });
+
+        gameSocket.on("game_result", ({ eloChange }) => {
+            setEloChange(eloChange);
         });
 
         gameSocket.on("fire_result", ({ isHit, won, position, turn }) => {

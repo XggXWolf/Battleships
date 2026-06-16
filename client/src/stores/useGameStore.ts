@@ -10,6 +10,7 @@ type GameStore = {
     enemyHits: Position[];
     gameId: string | null;
     opponentData: OpponentData | null;
+    eloChange: number | null;
     setGameId: (id: string) => void;
     setCurrentTurn: (turn: "player" | "opponent" | null) => void;
     setGameStatus: (status: "placement" | "active" | "finished") => void;
@@ -19,6 +20,7 @@ type GameStore = {
     addHit: (hit: Position) => void;
     addEnemyHit: (hit: Position) => void;
     setOpponentData: (data: PlayerData) => void;
+    setEloChange: (change: number) => void;
     resetGame: () => void;
 };
 
@@ -30,6 +32,7 @@ export const useGameStore = create<GameStore>((set) => ({
     shipBoard: [],
     hitBoard: [],
     enemyHits: [],
+    eloChange: null,
     setGameId: (id) => set({ gameId: id }),
     setCurrentTurn: (turn) => set({ currentTurn: turn }),
     setGameStatus: (status) => set({ gameStatus: status }),
@@ -45,6 +48,7 @@ export const useGameStore = create<GameStore>((set) => ({
             enemyHits: [...s.enemyHits, hit],
         })),
     setOpponentData: (data) => set({ opponentData: data }),
+    setEloChange: (change) => set({ eloChange: change }),
     resetGame: () =>
         set({
             currentTurn: null,

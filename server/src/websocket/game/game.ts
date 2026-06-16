@@ -123,7 +123,7 @@ export class Game {
     position: Position,
   ): {
     isHit: boolean;
-    sunk: boolean;
+    sunk: Ship | null;
     won: boolean;
     position: Position;
     turn: string;
@@ -167,7 +167,8 @@ export class Game {
 
     playerShots.push(position);
 
-    const sunk = hitShip ? this.isShipSunk(hitShip, playerShots) : false;
+    const sunk =
+      hitShip && this.isShipSunk(hitShip, playerShots) ? hitShip : null;
 
     const allOpponentCells = targetBoard.flatMap(this.occupies);
     const won = allOpponentCells.every((cell) =>
