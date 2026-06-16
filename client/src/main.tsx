@@ -1,4 +1,4 @@
-import { StrictMode, useEffect } from "react";
+import { StrictMode, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, Navigate } from "react-router";
 import { RouterProvider } from "react-router/dom";
@@ -15,6 +15,7 @@ import { isTokenExpired } from "./util/authFunctions.ts";
 import useSocket from "./hooks/useSocket.ts";
 import { lobbySocket } from "./lib/socket.ts";
 import { useUserStore } from "./stores/useUserStore.ts";
+import ErrorBanner from "./Components/Shared/ErrorBanner.tsx";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -116,37 +117,72 @@ function ReverseProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
-    const { user, setUser } = useUserStore();
-
-    async function fetchUserData() {
-        if (isTokenExpired()) {
-            localStorage.clear();
-            return;
-        }
-
-        const token = localStorage.getItem("access_token");
-
-        const res = await fetch(`${BACKEND_URL}/users/me`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
-        });
-
-        if (res.ok) {
-            const data = await res.json();
-            localStorage.setItem("user", JSON.stringify(data));
-            setUser(data);
-
-            console.log("User data fetched and stored in Zustand:", data);
-        }
-    }
+    const { setUser } = useUserStore();
+    const [errorMessage, setErrorMessage] = useState<string | undefined>(
+        undefined,
+    );
 
     useEffect(() => {
+        let retryTimer: ReturnType<typeof setTimeout>;
+
+        async function fetchUserData(isRetry = false) {
+            if (isTokenExpired()) {
+                localStorage.clear();
+                return;
+            }
+
+            const token = localStorage.getItem("access_token");
+
+            try {
+                const res = await fetch(`${BACKEND_URL}/users/me`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    localStorage.setItem("user", JSON.stringify(data));
+                    setUser(data);
+
+                    console.log(
+                        "User data fetched and stored in Zustand:",
+                        data,
+                    );
+
+                    if (isRetry) {
+                        setErrorMessage(undefined);
+                        window.location.reload();
+                    }
+                } else {
+                    setErrorMessage(
+                        "Failed to connect to server, service might just be waking up. Trying again in a few seconds...",
+                    );
+
+                    retryTimer = setTimeout(() => fetchUserData(true), 3000);
+                }
+            } catch (err) {
+                setErrorMessage(
+                    "Failed to connect to server, service might just be waking up. Trying again in a few seconds...",
+                );
+
+                retryTimer = setTimeout(() => fetchUserData(true), 3000);
+            }
+        }
+
         void fetchUserData();
-    }, []);
-    return <RouterProvider router={router} />;
+
+        return () => clearTimeout(retryTimer);
+    }, [setUser]);
+
+    return (
+        <>
+            {errorMessage && <ErrorBanner message={errorMessage} />}
+            <RouterProvider router={router} />
+        </>
+    );
 }
 
 createRoot(document.getElementById("root")!).render(<App />);
