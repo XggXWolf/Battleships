@@ -4,7 +4,7 @@ import { Position } from './game.types';
 
 @Injectable()
 export class GameService {
-  readonly activeGames = new Map<string, Game>();
+  readonly activeGames = new Map<string, Game>(); // gameId -> Game
 
   private generateGameId(player1Id: string, player2Id: string): string {
     const sortedIds = [player1Id, player2Id].sort();
@@ -19,6 +19,15 @@ export class GameService {
 
     const ships = game.placeShips(userId);
     return { phase: game.currentPhase, shipBoard: ships };
+  }
+
+  getGameFromUserId(userId: string): { gameId: string; game: Game } | null {
+    for (const [gameId, game] of this.activeGames.entries()) {
+      if (game.player1Id === userId || game.player2Id === userId) {
+        return { gameId, game };
+      }
+    }
+    return null;
   }
 
   createGame(player1Id: string, player2Id: string) {
