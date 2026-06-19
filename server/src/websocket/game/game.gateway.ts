@@ -31,6 +31,11 @@ export class GameGateway extends BaseGateway {
     super(gatewayService);
   }
 
+  // Override base gateway disconnect handler to prevent automatic removal from online users map
+  handleDisconnect(client: Socket): void {
+    return;
+  }
+
   @SubscribeMessage('join_game')
   handleJoinGame(
     @ConnectedSocket() client: Socket,

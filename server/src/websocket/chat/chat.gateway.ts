@@ -27,6 +27,11 @@ export class ChatGateway extends BaseGateway {
     super(gatewayService);
   }
 
+  // Override base gateway disconnect handler to prevent automatic removal from online users map
+  handleDisconnect(client: Socket): void {
+    return;
+  }
+
   @SubscribeMessage('join_room')
   handleJoinRoom(
     @ConnectedSocket() client: Socket,
