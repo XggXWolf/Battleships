@@ -50,8 +50,15 @@ export class GatewayService {
   }
 
   async handleDisconnect(client: Socket): Promise<void> {
-    this.onlineUsers.delete(client.data.sub);
-    console.log('Client disconnected:', client.id);
-    console.log('Online users:', this.onlineUsers.size);
+    const existingClient = this.onlineUsers.get(client.data.sub);
+    if (existingClient?.id === client.id) {
+      this.onlineUsers.delete(client.data.sub);
+      console.log('Client disconnected:', client.id);
+      console.log('Online users:', this.onlineUsers.size);
+    } else {
+      console.warn(
+        `Client ${client.id} attempted to disconnect but was not found in online users map`,
+      );
+    }
   }
 }
