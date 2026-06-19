@@ -62,7 +62,6 @@ export class GameGateway extends BaseGateway {
     }
   }
 
-  // TO-DO : fetch gameId from active games in gateway service instead of client sending it
   @Throttle({ default: { limit: 3, ttl: 1000 } })
   @SubscribeMessage('fire_shot')
   handleFireShot(
@@ -70,7 +69,15 @@ export class GameGateway extends BaseGateway {
     @MessageBody() data: GameData,
   ): void {
     const userId = client.data.sub;
-    const { pos, gameId } = data;
+    const gameId = this.gameService.getGameFromUserId(userId)?.gameId;
+    const pos = data.pos;
+
+    if (!gameId) {
+      client.emit('error', {
+        message: 'You are not part of any active game',
+      });
+      return;
+    }
 
     console.log(
       `Client ${client.id} fired a shot in game ${gameId} at position (${pos.x}, ${pos.y})`,
