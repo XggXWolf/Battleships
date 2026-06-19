@@ -1,4 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { WsException } from '@nestjs/websockets';
 
 @Injectable()
 export class WsReadyGuard implements CanActivate {
@@ -6,6 +7,11 @@ export class WsReadyGuard implements CanActivate {
     const client = context.switchToWs().getClient();
     console.log(`Guard check: ${client.id} ready=${client.data.ready}`);
 
-    return !!client.data.ready;
+    if (!client.data.ready) {
+      console.warn(`Client ${client.id} is not ready. Blocking message.`);
+      throw new WsException('Client is not ready to receive messages');
+    }
+
+    return true;
   }
 }

@@ -1,1 +1,4 @@
-export const WS_CORS = { origin: process.env.FRONTEND_URL, credentials: true };
+export const WS_CORS = {
+  origin: '*',
+  credentials: true,
+};
