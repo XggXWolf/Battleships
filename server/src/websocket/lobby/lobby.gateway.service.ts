@@ -72,8 +72,12 @@ export class LobbyGatewayService {
   }
 
   handleQueueLeave(client: Socket) {
-    console.log(client.data.sub);
-    console.log(this.playerQueue);
+    if (!this.playerQueue.has(client.data.sub)) {
+      console.warn(
+        `Client ${client.id} attempted to leave queue but was not found in queue`,
+      );
+      return;
+    }
 
     this.playerQueue.remove(client.data.sub);
 
