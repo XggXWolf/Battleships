@@ -40,6 +40,10 @@ export class MatchmakingQueue {
     return this.nodes[0] ?? null;
   }
 
+  peekIndex(index: number): QueueEntry | null {
+    return this.nodes[index] ?? null;
+  }
+
   remove(userId: string): boolean {
     const index = this.indexMap.get(userId);
     if (index === undefined) return false;

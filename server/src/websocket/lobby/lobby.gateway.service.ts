@@ -9,7 +9,7 @@ export class LobbyGatewayService {
   constructor(
     private gatewayService: GatewayService,
     protected readonly gameService: GameService,
-  ) { }
+  ) {}
 
   readonly playerQueue = new MatchmakingQueue(); // userId -> elo
 
@@ -84,21 +84,28 @@ export class LobbyGatewayService {
       return null;
     }
 
-    const player1Entry = this.playerQueue.pop();
-    const player2Entry = this.playerQueue.pop();
+    const p1Entry = this.playerQueue.peek();
+    const p2Candidate = this.playerQueue.peekIndex(1);
 
-    if (!player1Entry || !player2Entry) {
+    if (!p1Entry || !p2Candidate) {
       return null;
     }
 
-    const player1 = this.gatewayService.onlineUsers.get(player1Entry.userId);
-    const player2 = this.gatewayService.onlineUsers.get(player2Entry.userId);
+    const player1 = this.gatewayService.onlineUsers.get(p1Entry.userId);
+    const player2 = this.gatewayService.onlineUsers.get(p2Candidate.userId);
 
-    if (!player1 || !player2) {
-      if (player1) this.playerQueue.insert(player1Entry);
-      if (player2) this.playerQueue.insert(player2Entry);
-      return null;
+    if (!player1) {
+      this.playerQueue.pop();
+      return this.findMatch();
     }
+
+    if (!player2) {
+      this.playerQueue.remove(p2Candidate.userId);
+      return this.findMatch();
+    }
+
+    this.playerQueue.pop();
+    this.playerQueue.pop();
 
     return { player1, player2 };
   }
