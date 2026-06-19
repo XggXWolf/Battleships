@@ -17,6 +17,7 @@ import { lobbySocket } from "./lib/socket.ts";
 import { useUserStore } from "./stores/useUserStore.ts";
 import ErrorBanner from "./Components/Shared/ErrorBanner.tsx";
 import KeepAlive from "./Components/Shared/KeepAlive.tsx";
+import { bindGameSocketListeners } from "./lib/gameSocketBinder.ts";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -116,6 +117,8 @@ function ReverseProtectedRoute({ children }: { children: React.ReactNode }) {
 
     return children;
 }
+
+bindGameSocketListeners();
 
 function App() {
     const { setUser } = useUserStore();
