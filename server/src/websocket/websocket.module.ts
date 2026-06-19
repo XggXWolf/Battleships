@@ -7,10 +7,12 @@ import { UsersService } from '../users/users.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { GatewayService } from './gateway.service';
 import { GameService } from './game/game.service';
+import { ChatGatewayService } from './chat/chat.gateway.service';
 
 @Module({
   providers: [
     ChatGateway,
+    ChatGatewayService,
     GameGateway,
     GameService,
     LobbyGateway,

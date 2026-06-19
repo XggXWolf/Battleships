@@ -15,10 +15,6 @@ import { WS_CORS } from '../gateway.config';
 @UseGuards(WsReadyGuard)
 @WebSocketGateway({ namespace: 'lobby', cors: WS_CORS })
 export class LobbyGateway extends BaseGateway {
-  async handleConnection(client: Socket): Promise<void> {
-    await super.handleConnection(client);
-  }
-
   @WebSocketServer() server!: Server;
   constructor(
     protected readonly gatewayService: GatewayService,
