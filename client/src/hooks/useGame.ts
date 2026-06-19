@@ -12,7 +12,11 @@ export default function useGame() {
         const joinGame = () =>
             gameSocket.emit("join_game", useGameStore.getState().gameId);
 
-        gameSocket.once("ready", joinGame);
+        if (gameSocket.connected && (gameSocket as any).data?.ready) {
+            joinGame();
+        } else {
+            gameSocket.once("ready", joinGame);
+        }
 
         return () => {
             gameSocket.off("ready", joinGame);
