@@ -43,6 +43,9 @@ export class ChatGatewayService {
       console.warn(
         `Client ${client.id} is not in a chat room, ignoring message`,
       );
+      client.emit('error', {
+        message: 'You must join a chat room to send messages',
+      });
       return;
     }
 
