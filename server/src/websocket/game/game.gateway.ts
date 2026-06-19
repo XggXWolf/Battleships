@@ -1,5 +1,6 @@
 import {
   ConnectedSocket,
+  MessageBody,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -31,7 +32,10 @@ export class GameGateway extends BaseGateway {
   }
 
   @SubscribeMessage('join_game')
-  handleJoinGame(@ConnectedSocket() client: Socket, gameId: string): void {
+  handleJoinGame(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() gameId: string,
+  ): void {
     client.join(gameId);
     console.log(`Client ${client.id} joined game ${gameId}`);
 
@@ -53,7 +57,10 @@ export class GameGateway extends BaseGateway {
 
   // TO-DO : fetch gameId from active games in gateway service instead of client sending it
   @SubscribeMessage('fire_shot')
-  handleFireShot(@ConnectedSocket() client: Socket, data: GameData): void {
+  handleFireShot(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: GameData,
+  ): void {
     const userId = client.data.sub;
     const { pos, gameId } = data;
 

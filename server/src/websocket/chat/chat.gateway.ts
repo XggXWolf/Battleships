@@ -11,11 +11,14 @@ import { BaseGateway } from '../base.gateway';
 import { WS_CORS } from '../gateway.config';
 import { GatewayService } from '../gateway.service';
 import { ChatGatewayService } from './chat.gateway.service';
+import { UseGuards } from '@nestjs/common';
+import { WsReadyGuard } from '../../guards/ws-ready.guard';
 
 @WebSocketGateway({
   namespace: 'chat',
   cors: WS_CORS,
 })
+@UseGuards(WsReadyGuard)
 export class ChatGateway extends BaseGateway {
   constructor(
     protected readonly gatewayService: GatewayService,

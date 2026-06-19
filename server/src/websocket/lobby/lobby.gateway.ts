@@ -1,4 +1,5 @@
 import {
+  ConnectedSocket,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -24,16 +25,16 @@ export class LobbyGateway extends BaseGateway {
   }
 
   @SubscribeMessage('join_queue')
-  handleQueueJoin(client: Socket): void {
+  handleQueueJoin(@ConnectedSocket() client: Socket): void {
     this.lobbyGatewayService.handleQueueJoin(client);
   }
 
   @SubscribeMessage('leave_queue')
-  handleQueueLeave(client: Socket): void {
+  handleQueueLeave(@ConnectedSocket() client: Socket): void {
     this.lobbyGatewayService.handleQueueLeave(client);
   }
 
-  handleDisconnect(client: Socket): void {
+  handleDisconnect(@ConnectedSocket() client: Socket): void {
     this.lobbyGatewayService.handleQueueLeave(client);
     super.handleDisconnect(client);
   }

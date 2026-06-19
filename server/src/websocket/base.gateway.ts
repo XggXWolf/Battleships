@@ -1,4 +1,5 @@
 import {
+  ConnectedSocket,
   OnGatewayConnection,
   OnGatewayDisconnect,
   OnGatewayInit,
@@ -13,11 +14,11 @@ export abstract class BaseGateway
 
   afterInit(server: Server) {}
 
-  handleConnection(client: Socket) {
-    this.gatewayService.handleConnection(client);
+  async handleConnection(@ConnectedSocket() client: Socket) {
+    await this.gatewayService.handleConnection(client);
   }
 
-  handleDisconnect(client: Socket) {
+  handleDisconnect(@ConnectedSocket() client: Socket) {
     this.gatewayService.handleDisconnect(client);
   }
 }
