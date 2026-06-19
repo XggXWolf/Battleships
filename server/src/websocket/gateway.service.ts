@@ -44,7 +44,13 @@ export class GatewayService {
       return;
     }
 
-    this.onlineUsers.set(client.data.sub, client);
+    // Fix : The old code used to set this for every namespace the client connected to,
+    // but we only want to set it for the lobby namespace.
+    // This is because the game and chat namespaces should not be used to track online users, as they are only for active games and chats.
+    if (client.nsp.name === '/lobby') {
+      this.onlineUsers.set(client.data.sub, client);
+    }
+
     console.log('Client connected:', client.id);
     console.log('Online users:', this.onlineUsers.size);
   }
