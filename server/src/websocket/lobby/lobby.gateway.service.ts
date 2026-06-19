@@ -23,7 +23,9 @@ export class LobbyGatewayService {
     this.playerQueue.insert({ userId: userId, elo: client.data.elo });
 
     client.join('queue');
-    console.log(`Client ${client.id} joined the queue`);
+    console.log(
+      `Client ${client.id} joined the queue, total players in queue: ${this.playerQueue.size}`,
+    );
 
     const match = this.findMatch();
     if (match) {
@@ -81,6 +83,7 @@ export class LobbyGatewayService {
 
   findMatch(): { player1: Socket; player2: Socket } | null {
     if (this.playerQueue.size < 2) {
+      console.warn('Not enough players in the queue to find a match');
       return null;
     }
 
@@ -88,6 +91,7 @@ export class LobbyGatewayService {
     const p2Candidate = this.playerQueue.peekIndex(1);
 
     if (!p1Entry || !p2Candidate) {
+      console.warn('Unexpected state: not enough players in the queue');
       return null;
     }
 
@@ -95,11 +99,17 @@ export class LobbyGatewayService {
     const player2 = this.gatewayService.onlineUsers.get(p2Candidate.userId);
 
     if (!player1) {
+      console.warn(
+        `Player 1 with userId ${p1Entry.userId} is in queue but is not online`,
+      );
       this.playerQueue.pop();
       return this.findMatch();
     }
 
     if (!player2) {
+      console.warn(
+        `Player 2 with userId ${p2Candidate.userId} is in queue but is not online`,
+      );
       this.playerQueue.remove(p2Candidate.userId);
       return this.findMatch();
     }
