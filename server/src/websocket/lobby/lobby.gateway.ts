@@ -10,10 +10,11 @@ import { BaseGateway } from '../base.gateway';
 import { LobbyGatewayService } from './lobby.gateway.service';
 import { GatewayService } from '../gateway.service';
 import { WsReadyGuard } from '../../guards/ws-ready.guard';
+import { WsThrottlerGuard } from '../../guards/ws-throttler.guard';
 import { UseGuards } from '@nestjs/common';
 import { WS_CORS } from '../gateway.config';
 
-@UseGuards(WsReadyGuard)
+@UseGuards(WsReadyGuard, WsThrottlerGuard)
 @WebSocketGateway({ namespace: 'lobby', cors: WS_CORS })
 export class LobbyGateway extends BaseGateway {
   @WebSocketServer() server!: Server;

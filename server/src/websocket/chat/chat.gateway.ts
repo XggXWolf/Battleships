@@ -13,12 +13,14 @@ import { GatewayService } from '../gateway.service';
 import { ChatGatewayService } from './chat.gateway.service';
 import { UseGuards } from '@nestjs/common';
 import { WsReadyGuard } from '../../guards/ws-ready.guard';
+import { WsThrottlerGuard } from '../../guards/ws-throttler.guard';
+import { Throttle } from '@nestjs/throttler';
 
 @WebSocketGateway({
   namespace: 'chat',
   cors: WS_CORS,
 })
-@UseGuards(WsReadyGuard)
+@UseGuards(WsReadyGuard, WsThrottlerGuard)
 export class ChatGateway extends BaseGateway {
   constructor(
     protected readonly gatewayService: GatewayService,
@@ -43,6 +45,7 @@ export class ChatGateway extends BaseGateway {
   @SubscribeMessage('leave_room')
   handleLeaveRoom() {}
 
+  @Throttle({ default: { limit: 10, ttl: 10000 } })
   @SubscribeMessage('message')
   handleMessage(
     @ConnectedSocket() client: Socket,

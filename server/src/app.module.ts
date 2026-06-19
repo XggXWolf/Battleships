@@ -13,6 +13,7 @@ import { ProfileCompleteGuard } from './guards/profile-complete.guard';
 import { AuthenticationGuard } from './guards/authentication.guard';
 import { AuthorizationGuard } from './guards/authorization.guard';
 import { WebsocketModule } from './websocket/websocket.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -25,10 +26,16 @@ import { WebsocketModule } from './websocket/websocket.module';
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '7d' },
     }),
-
     AuthModule,
-
     WebsocketModule,
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60000,
+          limit: 100,
+        },
+      ],
+    }),
   ],
   controllers: [AppController],
   providers: [
@@ -37,6 +44,7 @@ import { WebsocketModule } from './websocket/websocket.module';
     { provide: APP_GUARD, useClass: AuthenticationGuard },
     { provide: APP_GUARD, useClass: AuthorizationGuard },
     { provide: APP_GUARD, useClass: ProfileCompleteGuard },
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],
 })
 export class AppModule {}

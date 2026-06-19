@@ -13,14 +13,16 @@ import { Position } from './game.types';
 import { GameService } from './game.service';
 import { UseGuards } from '@nestjs/common';
 import { WsReadyGuard } from '../../guards/ws-ready.guard';
+import { WsThrottlerGuard } from '../../guards/ws-throttler.guard';
 import { WS_CORS } from '../gateway.config';
+import { Throttle } from '@nestjs/throttler';
 
 interface GameData {
   pos: Position;
   gameId: string;
 }
 
-@UseGuards(WsReadyGuard)
+@UseGuards(WsReadyGuard, WsThrottlerGuard)
 @WebSocketGateway({ namespace: 'game', cors: WS_CORS })
 export class GameGateway extends BaseGateway {
   @WebSocketServer() server!: Server;
@@ -61,6 +63,7 @@ export class GameGateway extends BaseGateway {
   }
 
   // TO-DO : fetch gameId from active games in gateway service instead of client sending it
+  @Throttle({ default: { limit: 3, ttl: 1000 } })
   @SubscribeMessage('fire_shot')
   handleFireShot(
     @ConnectedSocket() client: Socket,

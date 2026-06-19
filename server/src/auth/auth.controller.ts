@@ -13,8 +13,10 @@ import { RegisterDto } from './dto/register.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { Request, Response } from 'express';
 import { SkipAuth } from '../decorators/skip-auth.decorator';
+import { Throttle } from '@nestjs/throttler';
 @SkipAuth()
 @Controller('auth')
+@Throttle({ default: { limit: 10, ttl: 60000 } })
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
