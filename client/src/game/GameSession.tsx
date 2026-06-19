@@ -21,7 +21,11 @@ export default function GameSession() {
             chatSocket.emit("join_room", gameId + "-chat");
         };
 
-        chatSocket.once("ready", joinChatRoom);
+        if (chatSocket.connected && (chatSocket as any).authReady) {
+            joinChatRoom();
+        } else {
+            chatSocket.once("ready", joinChatRoom);
+        }
 
         chatSocket.on("message", (message: ChatMessage) => {
             const user = useUserStore.getState().user;

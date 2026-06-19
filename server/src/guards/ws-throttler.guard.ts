@@ -8,7 +8,7 @@ export class WsThrottlerGuard extends ThrottlerGuard {
       requestProps;
 
     const client = context.switchToWs().getClient();
-    const tracker = client.conn.remoteAddress ?? 'unknown-ip';
+    const tracker = client.data.sub ?? client.id;
 
     const throttlerName = throttler.name ?? 'default';
     const key = generateKey(context, tracker, throttlerName);

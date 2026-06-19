@@ -62,7 +62,7 @@ export class GameGateway extends BaseGateway {
     }
   }
 
-  @Throttle({ default: { limit: 3, ttl: 1000 } })
+  @Throttle({ default: { limit: 20, ttl: 1000 } })
   @SubscribeMessage('fire_shot')
   handleFireShot(
     @ConnectedSocket() client: Socket,
