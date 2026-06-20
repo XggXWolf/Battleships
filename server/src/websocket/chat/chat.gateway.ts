@@ -3,9 +3,10 @@ import {
   MessageBody,
   SubscribeMessage,
   WebSocketGateway,
+  WebSocketServer,
 } from '@nestjs/websockets';
 
-import { Socket } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { ChatMessage } from '../../types/chatMessage';
 import { BaseGateway } from '../base.gateway';
 import { WS_CORS } from '../gateway.config';
@@ -22,6 +23,8 @@ import { Throttle } from '@nestjs/throttler';
 })
 @UseGuards(WsReadyGuard, WsThrottlerGuard)
 export class ChatGateway extends BaseGateway {
+  @WebSocketServer() server!: Server;
+
   constructor(
     protected readonly gatewayService: GatewayService,
     private readonly chatGatewayService: ChatGatewayService,
@@ -51,6 +54,18 @@ export class ChatGateway extends BaseGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() message: ChatMessage,
   ): void {
-    this.chatGatewayService.handleMessage(client, message);
+    const result = this.chatGatewayService.handleMessage(client, message);
+
+    if (!result) {
+      client.emit('error', {
+        message: 'You must join a chat room to send messages',
+      });
+      return;
+    }
+
+    const { roomId, chatMessage } = result;
+
+    console.log('Sending message to room', roomId, ':', chatMessage);
+    this.server.to(roomId).emit('message', chatMessage);
   }
 }

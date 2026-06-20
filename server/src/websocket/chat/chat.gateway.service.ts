@@ -6,8 +6,6 @@ import { GameService } from '../game/game.service';
 
 @Injectable()
 export class ChatGatewayService {
-  @WebSocketServer() server!: Server;
-
   constructor(protected readonly gameService: GameService) {}
 
   handleJoinRoom(client: Socket, roomId: string) {
@@ -33,7 +31,10 @@ export class ChatGatewayService {
     console.log(`Client ${client.id} joined room ${roomId}`);
   }
 
-  handleMessage(client: Socket, message: ChatMessage) {
+  handleMessage(
+    client: Socket,
+    message: ChatMessage,
+  ): { roomId: string; chatMessage: ChatMessage } | undefined {
     console.log('Client:', client.data);
     console.log('Client rooms:', client.rooms);
     console.log('Received message:', message);
@@ -43,10 +44,8 @@ export class ChatGatewayService {
       console.warn(
         `Client ${client.id} is not in a chat room, ignoring message`,
       );
-      client.emit('error', {
-        message: 'You must join a chat room to send messages',
-      });
-      return;
+
+      return undefined;
     }
 
     let chatMessage = {
@@ -55,7 +54,6 @@ export class ChatGatewayService {
       timestamp: new Date(),
     };
 
-    console.log('Sending message to room', roomId, ':', chatMessage);
-    this.server.to(roomId).emit('message', chatMessage);
+    return { roomId, chatMessage };
   }
 }

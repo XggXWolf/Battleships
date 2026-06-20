@@ -12,6 +12,20 @@ export function bindGameSocketListeners() {
         useGameStore.getState().setGameStatus("active");
     });
 
+    gameSocket.on("rejoin_game", (gameData) => {
+        const user = useUserStore.getState().user;
+        useGameStore.getState().resetGame();
+        useGameStore.getState().setGameId(gameData.gameId);
+        useGameStore
+            .getState()
+            .setCurrentTurn(gameData.turn === user.id ? "player" : "opponent");
+        useGameStore.getState().setOpponentData(gameData.opponent);
+        useGameStore.getState().setGameStatus(gameData.gameStatus);
+        useGameStore.getState().setHitBoard(gameData.hitBoard);
+        useGameStore.getState().setEnemyHits(gameData.enemyHitBoard);
+        useGameStore.getState().setShipBoard(gameData.shipBoard);
+    });
+
     gameSocket.on("placed_ships", ({ shipBoard }) => {
         useGameStore.getState().setShipBoard(shipBoard);
         console.log("Received ship board:", shipBoard);

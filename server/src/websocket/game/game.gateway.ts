@@ -33,8 +33,17 @@ export class GameGateway extends BaseGateway {
     super(gatewayService);
   }
 
-  handleConnection(client: Socket): Promise<void> {
-    return super.handleConnection(client);
+  async handleConnection(client: Socket): Promise<void> {
+    await super.handleConnection(client);
+
+    const gameId = this.gameService.getGameFromUserId(client.data.sub)?.gameId;
+
+    if (gameId) {
+      client.join(gameId);
+      console.log(
+        `[GameGateway] Re-added client ${client.id} to room ${gameId}`,
+      );
+    }
   }
 
   // Override base gateway disconnect handler to prevent automatic removal from online users map
@@ -49,6 +58,21 @@ export class GameGateway extends BaseGateway {
   ): void {
     client.join(gameId);
     console.log(`Client ${client.id} joined game ${gameId}`);
+
+    const game = this.gameService.activeGames.get(gameId);
+    if (!game) {
+      client.emit('error', {
+        message: 'Unexpected error: Game not found',
+      });
+      return;
+    }
+
+    // Game not in placement phase = rejoining a game, no need to place ships
+    if (game.currentPhase !== 'placement') {
+      const gameData = this.gameService.onGameRejoin(gameId, client.data.sub);
+      client.emit('rejoin_game', gameData);
+      return;
+    }
 
     const { phase, shipBoard } = this.gameService.onGameJoin(
       gameId,
