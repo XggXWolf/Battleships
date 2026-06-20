@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Game } from './game';
-import { Position } from './game.types';
+import { Position, Ship } from './game.types';
 
 @Injectable()
 export class GameService {
@@ -19,6 +19,34 @@ export class GameService {
 
     const ships = game.placeShips(userId);
     return { phase: game.currentPhase, shipBoard: ships };
+  }
+
+  onGameRejoin(
+    gameId: string,
+    userId: string,
+  ): {
+    gameId: string;
+    turn: string;
+    opponent: string;
+    gameStatus: string;
+    hitBoard: Position[];
+    enemyHitBoard: Position[];
+    shipBoard: Ship[];
+  } {
+    const game = this.activeGames.get(gameId)!;
+
+    const opponentId =
+      game.player1Id === userId ? game.player2Id : game.player1Id;
+
+    return {
+      gameId,
+      turn: game.currentTurn,
+      opponent: opponentId,
+      gameStatus: game.currentPhase,
+      hitBoard: game.getShots(userId),
+      enemyHitBoard: game.getShots(opponentId),
+      shipBoard: game.getShips(userId),
+    };
   }
 
   getGameFromUserId(userId: string): { gameId: string; game: Game } | null {

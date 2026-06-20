@@ -13,6 +13,9 @@ export default function useLobby(onMatchFound?: () => void) {
         setGameId,
         setOpponentData,
         resetGame,
+        setEnemyHits,
+        setHitBoard,
+        setShipBoard,
     } = useGameStore();
 
     useEffect(() => {
@@ -31,6 +34,34 @@ export default function useLobby(onMatchFound?: () => void) {
 
             if (onMatchFound) onMatchFound();
         });
+
+        lobbySocket.on(
+            "rejoin_game",
+            ({
+                gameId,
+                turn,
+                opponent,
+                gameStatus,
+                hitBoard,
+                enemyHitBoard,
+                shipBoard,
+            }) => {
+                const user = useUserStore.getState().user;
+                resetGame();
+
+                console.log(
+                    `Reconnected to match! Game ID: ${gameId}, Turn: ${turn}, user Id: ${user.id}`,
+                );
+
+                setGameId(gameId);
+                setCurrentTurn(turn === user.id ? "player" : "opponent");
+                setOpponentData(opponent);
+                setGameStatus(gameStatus);
+                setHitBoard(hitBoard);
+                setEnemyHits(enemyHitBoard);
+                setShipBoard(shipBoard);
+            },
+        );
 
         return () => {
             lobbySocket.off("match_found");
