@@ -21,13 +21,33 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  async login(@Body() loginDto: LoginDto) {
-    return await this.authService.validateUser(loginDto);
+  async login(@Res() res: Response, @Body() loginDto: LoginDto) {
+    const { access_token: token, user: user } =
+      await this.authService.validateUser(loginDto);
+
+    res.cookie('access_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.IS_CROSS_ORIGIN === 'true' ? 'none' : 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.json({ user: user });
   }
 
   @Post('register')
-  async register(@Body() registerDto: RegisterDto) {
-    return await this.authService.registerUserLocal(registerDto);
+  async register(@Res() res: Response, @Body() registerDto: RegisterDto) {
+    const { access_token: token, user: user } =
+      await this.authService.registerUserLocal(registerDto);
+
+    res.cookie('access_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.IS_CROSS_ORIGIN === 'true' ? 'none' : 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.json({ user: user });
   }
 
   // Passport handles the route on its own, it just needs to exist
@@ -48,8 +68,14 @@ export class AuthController {
       role: user.role,
       isProfileComplete: user.isProfileComplete,
     });
-    return res.redirect(
-      `${process.env.FRONTEND_URL}/oauth-success?token=${token}`,
-    );
+
+    res.cookie('access_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.IS_CROSS_ORIGIN === 'true' ? 'none' : 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.redirect(`${process.env.FRONTEND_URL}/oauth-success`);
   }
 }

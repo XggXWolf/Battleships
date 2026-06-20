@@ -14,26 +14,23 @@ const setupSocket = (socket: Socket) => {
     return socket;
 };
 
-export const chatSocket: Socket = setupSocket(io(`${BACKEND_URL}/chat`, {
-    autoConnect: false,
-    auth: (cb) => {
-        const token = localStorage.getItem("access_token");
-        cb({ token });
-    },
-}));
+export const chatSocket: Socket = setupSocket(
+    io(`${BACKEND_URL}/chat`, {
+        autoConnect: false,
+        withCredentials: true,
+    }),
+);
 
-export const lobbySocket: Socket = setupSocket(io(`${BACKEND_URL}/lobby`, {
-    autoConnect: false,
-    auth: (cb) => {
-        const token = localStorage.getItem("access_token");
-        cb({ token });
-    },
-}));
+export const lobbySocket: Socket = setupSocket(
+    io(`${BACKEND_URL}/lobby`, {
+        autoConnect: false,
+        withCredentials: true,
+    }),
+);
 
-export const gameSocket: Socket = setupSocket(io(`${BACKEND_URL}/game`, {
-    autoConnect: false,
-    auth: (cb) => {
-        const token = localStorage.getItem("access_token");
-        cb({ token });
-    },
-}));
+export const gameSocket: Socket = setupSocket(
+    io(`${BACKEND_URL}/game`, {
+        autoConnect: false,
+        withCredentials: true,
+    }),
+);

@@ -29,7 +29,9 @@ export class AuthenticationGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
 
-    const token = request.headers['authorization']?.split(' ')[1];
+    const token =
+      request.cookies?.['access_token'] ||
+      request.headers?.['authorization']?.split(' ')[1];
 
     if (!token) {
       throw new UnauthorizedException('Unauthorized');

@@ -42,6 +42,7 @@ export default function LoginContainer() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data),
+                credentials: "include",
             });
             const body = await res.json();
 
@@ -54,7 +55,6 @@ export default function LoginContainer() {
                 return;
             }
 
-            localStorage.setItem("access_token", body.access_token);
             localStorage.setItem("user", JSON.stringify(body.user));
             setUser(body.user);
             window.location.href = "/";

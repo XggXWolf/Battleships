@@ -23,8 +23,8 @@ export default function RegisterContainer() {
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
-    const { setUser } = useUserStore(); 
-    
+    const { setUser } = useUserStore();
+
     const {
         register,
         handleSubmit,
@@ -41,6 +41,7 @@ export default function RegisterContainer() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data),
+                credentials: "include",
             });
 
             const body = await res.json();
@@ -54,7 +55,6 @@ export default function RegisterContainer() {
                 return;
             }
 
-            localStorage.setItem("access_token", body.access_token);
             localStorage.setItem("user", JSON.stringify(body.user));
             setUser(body.user);
             window.location.href = "/";

@@ -5,7 +5,6 @@ import MobileNavMenu from "./Mobile/MobileNavMenu";
 import PlayerInfo from "./PlayerInfo";
 import MobileNavDropdownMenu from "./Mobile/MobileNavDropdownMenu";
 import { NavLink, useLocation } from "react-router";
-import { isTokenExpired } from "../../../util/authFunctions";
 import { truncateRank } from "../../../util/rankFunctions";
 import { useUserStore } from "../../../stores/useUserStore";
 
@@ -16,14 +15,14 @@ export default function Header() {
     const { user } = useUserStore();
 
     useEffect(() => {
-        if (isTokenExpired()) {
+        if (user.id === "-1") {
             localStorage.clear();
             setIsLoggedIn(false);
             return;
         }
 
         setIsLoggedIn(true);
-    }, []);
+    }, [user]);
 
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen((prev) => !prev);

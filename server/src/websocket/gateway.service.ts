@@ -13,7 +13,12 @@ export class GatewayService {
   ) {}
 
   async handleConnection(client: Socket): Promise<void> {
-    const token = client.handshake.auth?.token;
+    const token = client.handshake.headers.cookie
+      ?.split('; ')
+      .find((cookie) => cookie.startsWith('access_token='))
+      ?.slice('access_token='.length);
+
+    console.log('New client connection attempt:', token);
 
     if (!token) {
       client.emit('error', { message: 'Unauthorized: No token provided' });

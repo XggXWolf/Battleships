@@ -11,7 +11,6 @@ import Shop from "./Pages/Shop/Shop.tsx";
 import Login from "./Pages/Login/Login.tsx";
 import Register from "./Pages/Register/Register.tsx";
 import ResetPassword from "./Pages/ResetPassword/ResetPassword.tsx";
-import { isTokenExpired } from "./util/authFunctions.ts";
 import useSocket from "./hooks/useSocket.ts";
 import { lobbySocket } from "./lib/socket.ts";
 import { useUserStore } from "./stores/useUserStore.ts";
@@ -52,7 +51,11 @@ const router = createBrowserRouter([
             },
             {
                 path: "play",
-                element: <Main />,
+                element: (
+                    <ProtectedRoute>
+                        <Main />
+                    </ProtectedRoute>
+                ),
             },
             {
                 path: "*",
@@ -102,8 +105,10 @@ function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
 }
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-    if (isTokenExpired()) {
-        localStorage.clear();
+    const user = useUserStore((state) => state.user);
+
+    if (user.id === "-1") {
+        localStorage.removeItem("user");
         return <Navigate to="/login" replace />;
     }
 
@@ -111,7 +116,9 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function ReverseProtectedRoute({ children }: { children: React.ReactNode }) {
-    if (!isTokenExpired()) {
+    const user = useUserStore((state) => state.user);
+
+    if (user.id !== "-1") {
         return <Navigate to="/" replace />;
     }
 
@@ -121,7 +128,7 @@ function ReverseProtectedRoute({ children }: { children: React.ReactNode }) {
 bindGameSocketListeners();
 
 function App() {
-    const { setUser } = useUserStore();
+    const { setUser, clearUser } = useUserStore();
     const [errorMessage, setErrorMessage] = useState<string | undefined>(
         undefined,
     );
@@ -130,20 +137,13 @@ function App() {
         let retryTimer: ReturnType<typeof setTimeout>;
 
         async function fetchUserData(isRetry = false) {
-            if (isTokenExpired()) {
-                localStorage.clear();
-                return;
-            }
-
-            const token = localStorage.getItem("access_token");
-
             try {
                 const res = await fetch(`${BACKEND_URL}/users/me`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
                     },
+                    credentials: "include",
                 });
 
                 if (res.ok) {
@@ -160,6 +160,9 @@ function App() {
                         setErrorMessage(undefined);
                         window.location.reload();
                     }
+                } else if (res.status === 401) {
+                    localStorage.removeItem("user");
+                    clearUser();
                 } else {
                     setErrorMessage(
                         "Failed to connect to server, service might just be waking up. Trying again in a few seconds...",
