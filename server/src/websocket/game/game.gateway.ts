@@ -30,7 +30,6 @@ export class GameGateway extends BaseGateway {
   constructor(
     protected readonly gatewayService: GatewayService,
     protected readonly gameService: GameService,
-    protected readonly usersService: UsersService,
   ) {
     super(gatewayService);
   }
@@ -119,17 +118,14 @@ export class GameGateway extends BaseGateway {
 
       const currentPhase = this.gameService.getPhase(gameId);
       if (currentPhase === 'finished') {
-        const { player1Id, player2Id } = this.gameService.getPlayers(gameId);
-        const winnerId = result.turn;
-        const loserId = result.turn === player1Id ? player2Id : player1Id;
-
-        const [winner, loser] = await Promise.all([
-          this.usersService.findMe(winnerId),
-          this.usersService.findMe(loserId),
-        ]);
-
-        const winnerElo = winner.elo;
-        const loserElo = loser.elo;
+        const {
+          winnerElo,
+          loserElo,
+          winnerId,
+          loserId,
+          winnerEloChange,
+          loserEloChange,
+        } = await this.gameService.finalizeGame(gameId, result.turn);
 
         console.log(
           `Game ${gameId} finished. Winner: ${winnerId} elo: ${winnerElo}, Loser: ${loserId} elo: ${loserElo}`,
@@ -137,16 +133,6 @@ export class GameGateway extends BaseGateway {
 
         this.gameService.removeGame(gameId);
 
-        const { winnerEloChange, loserEloChange } =
-          this.gameService.calculateEloChange(winnerElo, loserElo);
-
-        this.usersService.update(winnerId, {
-          elo: winnerElo + winnerEloChange,
-        });
-
-        this.usersService.update(loserId, {
-          elo: loserElo + loserEloChange,
-        });
         console.log(`Game ${gameId} has finished and been removed.`);
 
         this.server.to(gameId).emit('game_result', {

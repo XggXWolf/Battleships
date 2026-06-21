@@ -30,10 +30,11 @@ model User {
 
 model Game {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  gameId    String    @unique
   player1Id String
   player2Id String
   winnerId  String?
-  status    String    @default("PLACEMENT")
+  status    String    @default("placement")
   createdAt DateTime  @default(now())
   endedAt   DateTime?
 }

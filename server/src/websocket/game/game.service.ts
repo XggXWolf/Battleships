@@ -1,10 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { Game } from './game';
-import { Position, Ship } from './game.types';
+import { GameDataDB, Position, Ship } from './game.types';
+import { PrismaService } from '../../prisma/prisma.service';
+import { UsersService } from '../../users/users.service';
 
 @Injectable()
 export class GameService {
   readonly activeGames = new Map<string, Game>(); // gameId -> Game
+
+  constructor(
+    protected readonly prismaService: PrismaService,
+    protected readonly usersService: UsersService,
+  ) {}
 
   private generateGameId(player1Id: string, player2Id: string): string {
     const sortedIds = [player1Id, player2Id].sort();
@@ -67,9 +74,19 @@ export class GameService {
     return { player1Id: game.player1Id, player2Id: game.player2Id };
   }
 
-  createGame(player1Id: string, player2Id: string) {
+  async createGame(player1Id: string, player2Id: string) {
     const gameId = this.generateGameId(player1Id, player2Id);
     const game = new Game(player1Id, player2Id);
+
+    await this.updateOrCreateGameDB({
+      gameId,
+      player1Id,
+      player2Id,
+      winnerId: null,
+      status: 'placement',
+      endedAt: null,
+    });
+
     this.activeGames.set(gameId, game);
     return { gameId, turn: game.currentTurn };
   }
@@ -96,7 +113,7 @@ export class GameService {
     return game.currentPhase;
   }
 
-  calculateEloChange(
+  private calculateEloChange(
     winnerElo: number,
     loserElo: number,
   ): { winnerEloChange: number; loserEloChange: number } {
@@ -110,5 +127,78 @@ export class GameService {
     const loserEloChange = Math.round(K * (0 - expectedScoreLoser));
 
     return { winnerEloChange, loserEloChange };
+  }
+
+  private async updateOrCreateGameDB({
+    gameId,
+    player1Id,
+    player2Id,
+    winnerId,
+    status,
+    endedAt,
+  }: GameDataDB) {
+    const res = await this.prismaService.game.upsert({
+      where: { gameId },
+      update: { winnerId, status, endedAt },
+      create: {
+        gameId,
+        player1Id,
+        player2Id,
+        winnerId,
+        status,
+        endedAt,
+      },
+    });
+    return res;
+  }
+
+  async finalizeGame(gameId: string, winnerId: string) {
+    const game = this.activeGames.get(gameId);
+    if (!game) {
+      throw new Error('Game not found');
+    }
+
+    await this.updateOrCreateGameDB({
+      gameId,
+      player1Id: game.player1Id,
+      player2Id: game.player2Id,
+      winnerId,
+      status: 'finished',
+      endedAt: new Date(),
+    });
+
+    const { player1Id, player2Id } = game;
+    const loserId = winnerId === player1Id ? player2Id : player1Id;
+
+    const [winner, loser] = await Promise.all([
+      this.usersService.findMe(winnerId),
+      this.usersService.findMe(loserId),
+    ]);
+
+    if (!winner || !loser) {
+      throw new Error('Unexpected error: Winner or loser not found');
+    }
+
+    const { winnerEloChange, loserEloChange } = this.calculateEloChange(
+      winner.elo,
+      loser.elo,
+    );
+
+    await this.usersService.update(winnerId, {
+      elo: winner.elo + winnerEloChange,
+    });
+
+    await this.usersService.update(loserId, {
+      elo: loser.elo + loserEloChange,
+    });
+
+    return {
+      winnerElo: winner.elo,
+      loserElo: loser.elo,
+      winnerId,
+      loserId,
+      winnerEloChange,
+      loserEloChange,
+    };
   }
 }

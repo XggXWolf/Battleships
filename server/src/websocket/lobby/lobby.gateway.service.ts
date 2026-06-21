@@ -13,7 +13,7 @@ export class LobbyGatewayService {
 
   readonly playerQueue = new MatchmakingQueue(); // userId -> elo
 
-  handleQueueJoin(client: Socket) {
+  async handleQueueJoin(client: Socket) {
     const userId = client.data.sub;
     if (this.playerQueue.has(userId)) {
       console.log(`Client ${client.id} is already in the queue, re-adding`);
@@ -36,7 +36,7 @@ export class LobbyGatewayService {
       match.player1.leave('queue');
       match.player2.leave('queue');
 
-      const { gameId, turn } = this.gameService.createGame(
+      const { gameId, turn } = await this.gameService.createGame(
         match.player1.data.sub,
         match.player2.data.sub,
       );

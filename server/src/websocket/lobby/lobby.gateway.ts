@@ -26,8 +26,8 @@ export class LobbyGateway extends BaseGateway {
   }
 
   @SubscribeMessage('join_queue')
-  handleQueueJoin(@ConnectedSocket() client: Socket): void {
-    this.lobbyGatewayService.handleQueueJoin(client);
+  async handleQueueJoin(@ConnectedSocket() client: Socket): Promise<void> {
+    await this.lobbyGatewayService.handleQueueJoin(client);
   }
 
   @SubscribeMessage('leave_queue')
