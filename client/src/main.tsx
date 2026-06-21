@@ -127,10 +127,16 @@ function ReverseProtectedRoute({ children }: { children: React.ReactNode }) {
 
 bindGameSocketListeners();
 
-lobbySocket.once("ready", () => {
+lobbySocket.on("ready", () => {
     const setIsSocketReady = useUserStore.getState().setIsSocketReady;
     setIsSocketReady(true);
     console.log("Lobby socket is ready");
+});
+
+lobbySocket.on("disconnect", () => {
+    const setIsSocketReady = useUserStore.getState().setIsSocketReady;
+    setIsSocketReady(false);
+    console.log("Lobby socket disconnected");
 });
 
 function App() {
