@@ -127,8 +127,15 @@ function ReverseProtectedRoute({ children }: { children: React.ReactNode }) {
 
 bindGameSocketListeners();
 
+lobbySocket.once("ready", () => {
+    const setIsSocketReady = useUserStore.getState().setIsSocketReady;
+    setIsSocketReady(true);
+    console.log("Lobby socket is ready");
+});
+
 function App() {
-    const { setUser, clearUser } = useUserStore();
+    const setUser = useUserStore((state) => state.setUser);
+    const clearUser = useUserStore((state) => state.clearUser);
     const [errorMessage, setErrorMessage] = useState<string | undefined>(
         undefined,
     );

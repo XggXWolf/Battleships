@@ -1,9 +1,12 @@
 import { useState } from "react";
 import useLobby from "../../../../hooks/useLobby";
+import { useUserStore } from "../../../../stores/useUserStore";
 
 export default function LobbyPanel() {
     const [inQueue, setInQueue] = useState(false);
     const { joinQueue, leaveQueue } = useLobby();
+    const isSocketReady = useUserStore((state) => state.isSocketReady);
+    const user = useUserStore((state) => state.user);
 
     function handlePlayRanked(): void {
         setInQueue(true);
@@ -27,15 +30,22 @@ export default function LobbyPanel() {
                 id="play-ranked-btn"
                 className="w-full py-4 text-lg font-bold rounded-xl bg-green-600 hover:bg-green-700 transition shadow-xl transform hover:scale-[1.02]"
                 onClick={inQueue ? handleCancelQueue : handlePlayRanked}
+                disabled={!isSocketReady || user.id === "-1"}
             >
                 {inQueue
                     ? "⏳ Searching for Opponent..."
                     : "▶️ Play Ranked Match"}
             </button>
-            <button className="w-full py-4 text-lg font-bold rounded-xl bg-blue-600 hover:bg-blue-700 transition shadow-xl">
+            <button
+                className="w-full py-4 text-lg font-bold rounded-xl bg-blue-600 hover:bg-blue-700 transition shadow-xl"
+                disabled={!isSocketReady || user.id === "-1"}
+            >
                 🤝 Invite Friend
             </button>
-            <button className="w-full py-4 text-lg font-bold rounded-xl bg-orange-600 hover:bg-orange-700 transition shadow-xl">
+            <button
+                className="w-full py-4 text-lg font-bold rounded-xl bg-orange-600 hover:bg-orange-700 transition shadow-xl"
+                disabled={!isSocketReady || user.id === "-1"}
+            >
                 🤖 VS AI
             </button>
             <div className="grow"></div>
