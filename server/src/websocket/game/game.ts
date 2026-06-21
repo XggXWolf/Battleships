@@ -68,11 +68,13 @@ export class Game {
             pos = {
               x: Math.floor(Math.random() * (10 - size + 1)) + 1,
               y: Math.floor(Math.random() * 10) + 1,
+              hit: false,
             };
           } else {
             pos = {
               x: Math.floor(Math.random() * 10) + 1,
               y: Math.floor(Math.random() * (10 - size + 1)) + 1,
+              hit: false,
             };
           }
         } while (
@@ -165,7 +167,7 @@ export class Game {
         ),
       ) ?? null;
 
-    playerShots.push(position);
+    playerShots.push({ ...position, hit: !!hitShip });
 
     const sunk =
       hitShip && this.isShipSunk(hitShip, playerShots) ? hitShip : null;
