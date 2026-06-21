@@ -5,6 +5,24 @@ export class Game {
   private shots = new Map<string, Position[]>(); // userId -> shots
   private turn: string; // userId
   private phase: 'placement' | 'active' | 'finished' = 'placement';
+  private disconnectTimeout: NodeJS.Timeout | null = null;
+  private moveTimeout: NodeJS.Timeout | null = null;
+
+  get disconnectTimer() {
+    return this.disconnectTimeout;
+  }
+
+  set disconnectTimer(timeout: NodeJS.Timeout | null) {
+    this.disconnectTimeout = timeout;
+  }
+
+  get moveTimer() {
+    return this.moveTimeout;
+  }
+
+  set moveTimer(timeout: NodeJS.Timeout | null) {
+    this.moveTimeout = timeout;
+  }
 
   get currentTurn() {
     return this.turn;

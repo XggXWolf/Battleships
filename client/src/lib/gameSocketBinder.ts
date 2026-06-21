@@ -38,11 +38,24 @@ export function bindGameSocketListeners() {
                 useUserStore.getState().user.id === winnerId
                     ? winnerEloChange
                     : loserEloChange;
+            useGameStore
+                .getState()
+                .setWinner(
+                    winnerId === useUserStore.getState().user.id
+                        ? "player"
+                        : "opponent",
+                );
+            useGameStore.getState().setGameStatus("finished");
 
             useGameStore.getState().setEloChange(Math.abs(eloChange));
             useUserStore.getState().updateElo(eloChange);
         },
     );
+
+    // Not yet implemented
+    gameSocket.on("opponent_disconnected", ({ timeout }) => {
+        console.log(`Opponent disconnected. Timeout: ${timeout} seconds.`);
+    });
 
     gameSocket.on("fire_result", ({ isHit, won, position, turn }) => {
         const currentTurn = useGameStore.getState().currentTurn;
@@ -55,15 +68,11 @@ export function bindGameSocketListeners() {
             console.log(useGameStore.getState().enemyHits);
         }
 
-        if (won) {
-            useGameStore.getState().setWinner(currentTurn);
-            useGameStore.getState().setGameStatus("finished");
-            return;
+        if (!won) {
+            useGameStore
+                .getState()
+                .setCurrentTurn(turn === playerId ? "player" : "opponent");
         }
-
-        useGameStore
-            .getState()
-            .setCurrentTurn(turn === playerId ? "player" : "opponent");
     });
 
     gameSocket.on("error", (error) => {

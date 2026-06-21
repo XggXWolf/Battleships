@@ -16,7 +16,7 @@ import { WsReadyGuard } from '../../guards/ws-ready.guard';
 import { WsThrottlerGuard } from '../../guards/ws-throttler.guard';
 import { WS_CORS } from '../gateway.config';
 import { Throttle } from '@nestjs/throttler';
-import { UsersService } from '../../users/users.service';
+import { Game } from './game';
 
 interface GameData {
   pos: Position;
@@ -44,11 +44,29 @@ export class GameGateway extends BaseGateway {
       console.log(
         `[GameGateway] Re-added client ${client.id} to room ${gameId}`,
       );
+      this.gameService.clearTimeout(gameId);
     }
   }
 
   // Override base gateway disconnect handler to prevent automatic removal from online users map
   handleDisconnect(client: Socket): void {
+    const gameId = this.gameService.getGameFromUserId(client.data.sub)?.gameId;
+
+    if (!gameId) return;
+    console.log(
+      `[GameGateway] Client ${client.id} disconnected from game ${gameId}`,
+    );
+
+    this.gameService.startTimeout(gameId, client.data.sub, (finalResult) => {
+      this.gameService.removeGame(gameId);
+      this.server.to(gameId).emit('game_result', {
+        winnerId: finalResult.winnerId,
+        winnerEloChange: finalResult.winnerEloChange,
+        loserEloChange: finalResult.loserEloChange,
+      });
+    });
+    this.server.to(gameId).emit('opponent_disconnected', { timeout: 30 });
+
     return;
   }
 
@@ -116,8 +134,26 @@ export class GameGateway extends BaseGateway {
       const result = this.gameService.fire(gameId, userId, pos);
       this.server.to(gameId).emit('fire_result', result);
 
-      const currentPhase = this.gameService.getPhase(gameId);
-      if (currentPhase === 'finished') {
+      const onAutoFire = async (autoResult: ReturnType<Game['fire']>) => {
+        this.server.to(gameId).emit('fire_result', autoResult);
+        if (autoResult.won) {
+          const finalResult = await this.gameService.finalizeGame(
+            gameId,
+            autoResult.turn,
+          );
+          this.gameService.removeGame(gameId);
+          this.server.to(gameId).emit('game_result', {
+            winnerId: finalResult.winnerId,
+            winnerEloChange: finalResult.winnerEloChange,
+            loserEloChange: finalResult.loserEloChange,
+          });
+        } else {
+          this.gameService.clearMoveTimer(gameId);
+          this.gameService.startMoveTimer(gameId, autoResult.turn, onAutoFire);
+        }
+      };
+
+      if (result.won) {
         const {
           winnerElo,
           loserElo,
@@ -140,6 +176,9 @@ export class GameGateway extends BaseGateway {
           winnerEloChange,
           loserEloChange,
         });
+      } else {
+        this.gameService.clearMoveTimer(gameId);
+        this.gameService.startMoveTimer(gameId, result.turn, onAutoFire);
       }
     } catch (err) {
       client.emit('error', {

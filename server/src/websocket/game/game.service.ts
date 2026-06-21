@@ -101,7 +101,9 @@ export class GameService {
       throw new Error('Game not found');
     }
 
-    return game.fire(userId, pos);
+    const result = game.fire(userId, pos);
+
+    return result;
   }
 
   getPhase(gameId: string) {
@@ -152,10 +154,115 @@ export class GameService {
     return res;
   }
 
+  startMoveTimer(
+    gameId: string,
+    userId: string,
+    onFire: (result: ReturnType<Game['fire']>) => void,
+  ): NodeJS.Timeout {
+    const game = this.activeGames.get(gameId);
+
+    if (!game) {
+      throw new Error('Game not found');
+    }
+
+    const timeoutDuration = 3 * 1000; // 30 seconds
+
+    const timeOut = setTimeout(() => {
+      const randomPos = {
+        x: Math.floor(Math.random() * 10) + 1,
+        y: Math.floor(Math.random() * 10) + 1,
+        hit: false,
+      };
+
+      while (
+        game
+          .getShots(userId)
+          .some((shot) => shot.x === randomPos.x && shot.y === randomPos.y)
+      ) {
+        randomPos.x = Math.floor(Math.random() * 10) + 1;
+        randomPos.y = Math.floor(Math.random() * 10) + 1;
+      }
+
+      try {
+        const result = game.fire(userId, randomPos);
+        onFire(result);
+      } catch (err) {
+        console.error(`[MoveTimer] Error firing shot for game ${gameId}:`, err);
+      }
+    }, timeoutDuration);
+
+    game.moveTimer = timeOut;
+
+    return timeOut;
+  }
+
+  clearMoveTimer(gameId: string) {
+    const game = this.activeGames.get(gameId);
+    if (!game || !game.moveTimer) {
+      return;
+    }
+
+    clearTimeout(game.moveTimer);
+    game.moveTimer = null;
+  }
+
+  startTimeout(
+    gameId: string,
+    disconnectedUserId: string,
+    onFinalize: (
+      finalResult: Awaited<ReturnType<GameService['finalizeGame']>>,
+    ) => void,
+  ): NodeJS.Timeout {
+    const game = this.activeGames.get(gameId);
+    if (!game) {
+      throw new Error('Game not found');
+    }
+
+    const timeoutDuration = 10 * 1000; // 30 seconds
+
+    console.log(
+      `Starting disconnect timeout for game ${gameId} due to user ${disconnectedUserId} disconnecting.`,
+    );
+
+    const timeOut = setTimeout(() => {
+      const winnerId =
+        game.player1Id === disconnectedUserId ? game.player2Id : game.player1Id;
+
+      console.log(
+        `Disconnect timeout reached for game ${gameId}. User ${disconnectedUserId} did not reconnect. Declaring user ${winnerId} as the winner.`,
+      );
+
+      this.finalizeGame(gameId, winnerId)
+        .then(onFinalize)
+        .catch((err) => {
+          console.error(`[Timeout] Failed to finalize game ${gameId}:`, err);
+        });
+    }, timeoutDuration);
+
+    game.disconnectTimer = timeOut;
+
+    return timeOut;
+  }
+
+  clearTimeout(gameId: string) {
+    const game = this.activeGames.get(gameId);
+    if (!game || !game.disconnectTimer) {
+      return;
+    }
+
+    clearTimeout(game.disconnectTimer);
+    game.disconnectTimer = null;
+  }
+
   async finalizeGame(gameId: string, winnerId: string) {
     const game = this.activeGames.get(gameId);
     if (!game) {
       throw new Error('Game not found');
+    }
+
+    if (game.disconnectTimer) {
+      clearTimeout(game.disconnectTimer);
+      game.disconnectTimer = null;
     }
 
     await this.updateOrCreateGameDB({
