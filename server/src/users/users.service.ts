@@ -19,6 +19,7 @@ import {
 } from './users.helper';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { CreateUserOAuthDto } from './dto/create-user-oauth.dto';
+import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
 
 type PublicUser = Pick<
   User,
@@ -261,7 +262,7 @@ export class UsersService {
 
   async update(
     identifier: string,
-    updateUserDto: UpdateUserDto,
+    updateUserDto: UpdateUserDto | AdminUpdateUserDto,
   ): Promise<PublicUser> {
     const query = buildUserQuery(identifier);
 

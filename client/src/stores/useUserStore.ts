@@ -6,6 +6,7 @@ type UserStore = {
     isSocketReady: boolean;
     setUser: (data: PlayerData) => void;
     setIsSocketReady: (ready: boolean) => void;
+    updateElo: (elo: number) => void;
     clearUser: () => void;
 };
 
@@ -23,5 +24,9 @@ export const useUserStore = create<UserStore>((set) => ({
     isSocketReady: false,
     setUser: (data: PlayerData) => set({ user: data }),
     setIsSocketReady: (ready: boolean) => set({ isSocketReady: ready }),
+    updateElo: (elo: number) =>
+        set((state) => ({
+            user: { ...state.user, elo: state.user.elo + elo },
+        })),
     clearUser: () => set({ user: dummyUser }),
 }));

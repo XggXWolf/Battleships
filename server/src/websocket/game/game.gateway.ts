@@ -16,6 +16,7 @@ import { WsReadyGuard } from '../../guards/ws-ready.guard';
 import { WsThrottlerGuard } from '../../guards/ws-throttler.guard';
 import { WS_CORS } from '../gateway.config';
 import { Throttle } from '@nestjs/throttler';
+import { UsersService } from '../../users/users.service';
 
 interface GameData {
   pos: Position;
@@ -29,6 +30,7 @@ export class GameGateway extends BaseGateway {
   constructor(
     protected readonly gatewayService: GatewayService,
     protected readonly gameService: GameService,
+    protected readonly usersService: UsersService,
   ) {
     super(gatewayService);
   }
@@ -92,10 +94,10 @@ export class GameGateway extends BaseGateway {
 
   @Throttle({ default: { limit: 20, ttl: 1000 } })
   @SubscribeMessage('fire_shot')
-  handleFireShot(
+  async handleFireShot(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: GameData,
-  ): void {
+  ): Promise<void> {
     const userId = client.data.sub;
     const gameId = this.gameService.getGameFromUserId(userId)?.gameId;
     const pos = data.pos;
@@ -117,11 +119,41 @@ export class GameGateway extends BaseGateway {
 
       const currentPhase = this.gameService.getPhase(gameId);
       if (currentPhase === 'finished') {
+        const { player1Id, player2Id } = this.gameService.getPlayers(gameId);
+        const winnerId = result.turn;
+        const loserId = result.turn === player1Id ? player2Id : player1Id;
+
+        const [winner, loser] = await Promise.all([
+          this.usersService.findMe(winnerId),
+          this.usersService.findMe(loserId),
+        ]);
+
+        const winnerElo = winner.elo;
+        const loserElo = loser.elo;
+
+        console.log(
+          `Game ${gameId} finished. Winner: ${winnerId} elo: ${winnerElo}, Loser: ${loserId} elo: ${loserElo}`,
+        );
+
         this.gameService.removeGame(gameId);
-        this.server.to(gameId).emit('game_result', {
-          eloChange: 10, // Placeholder for actual ELO change calculation
+
+        const { winnerEloChange, loserEloChange } =
+          this.gameService.calculateEloChange(winnerElo, loserElo);
+
+        this.usersService.update(winnerId, {
+          elo: winnerElo + winnerEloChange,
+        });
+
+        this.usersService.update(loserId, {
+          elo: loserElo + loserEloChange,
         });
         console.log(`Game ${gameId} has finished and been removed.`);
+
+        this.server.to(gameId).emit('game_result', {
+          winnerId,
+          winnerEloChange,
+          loserEloChange,
+        });
       }
     } catch (err) {
       client.emit('error', {

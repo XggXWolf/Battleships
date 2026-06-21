@@ -58,6 +58,15 @@ export class GameService {
     return null;
   }
 
+  getPlayers(gameId: string): { player1Id: string; player2Id: string } {
+    const game = this.activeGames.get(gameId);
+    if (!game) {
+      throw new Error('Game not found');
+    }
+
+    return { player1Id: game.player1Id, player2Id: game.player2Id };
+  }
+
   createGame(player1Id: string, player2Id: string) {
     const gameId = this.generateGameId(player1Id, player2Id);
     const game = new Game(player1Id, player2Id);
@@ -85,5 +94,21 @@ export class GameService {
     }
 
     return game.currentPhase;
+  }
+
+  calculateEloChange(
+    winnerElo: number,
+    loserElo: number,
+  ): { winnerEloChange: number; loserEloChange: number } {
+    const K = 32;
+    const expectedScoreWinner =
+      1 / (1 + Math.pow(10, (loserElo - winnerElo) / 400));
+    const expectedScoreLoser =
+      1 / (1 + Math.pow(10, (winnerElo - loserElo) / 400));
+
+    const winnerEloChange = Math.round(K * (1 - expectedScoreWinner));
+    const loserEloChange = Math.round(K * (0 - expectedScoreLoser));
+
+    return { winnerEloChange, loserEloChange };
   }
 }

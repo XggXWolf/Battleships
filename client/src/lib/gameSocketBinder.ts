@@ -31,9 +31,18 @@ export function bindGameSocketListeners() {
         console.log("Received ship board:", shipBoard);
     });
 
-    gameSocket.on("game_result", ({ eloChange }) => {
-        useGameStore.getState().setEloChange(eloChange);
-    });
+    gameSocket.on(
+        "game_result",
+        ({ winnerId, winnerEloChange, loserEloChange }) => {
+            const eloChange =
+                useUserStore.getState().user.id === winnerId
+                    ? winnerEloChange
+                    : loserEloChange;
+
+            useGameStore.getState().setEloChange(Math.abs(eloChange));
+            useUserStore.getState().updateElo(eloChange);
+        },
+    );
 
     gameSocket.on("fire_result", ({ isHit, won, position, turn }) => {
         const currentTurn = useGameStore.getState().currentTurn;
