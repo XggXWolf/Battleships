@@ -12,6 +12,8 @@ type GameStore = {
     opponentData: OpponentData | null;
     eloChange: number | null;
     winner: "player" | "opponent" | null;
+    opponentDisconnected: boolean;
+    timer: number | null;
     setGameId: (id: string) => void;
     setCurrentTurn: (turn: "player" | "opponent" | null) => void;
     setGameStatus: (status: "placement" | "active" | "finished") => void;
@@ -23,6 +25,8 @@ type GameStore = {
     setOpponentData: (data: PlayerData) => void;
     setEloChange: (change: number) => void;
     setWinner: (winner: "player" | "opponent" | null) => void;
+    setTimer: (time: number | null) => void;
+    setOpponentDisconnected: (disconnected: boolean) => void;
     resetGame: () => void;
 };
 
@@ -36,12 +40,17 @@ export const useGameStore = create<GameStore>((set) => ({
     enemyHits: [],
     eloChange: null,
     winner: null,
+    timer: null,
+    opponentDisconnected: false,
+    setTimer: (time) => set({ timer: time }),
     setGameId: (id) => set({ gameId: id }),
     setCurrentTurn: (turn) => set({ currentTurn: turn }),
     setGameStatus: (status) => set({ gameStatus: status }),
     setShipBoard: (ships) => set({ shipBoard: ships }),
     setHitBoard: (hits) => set({ hitBoard: hits }),
     setEnemyHits: (hits) => set({ enemyHits: hits }),
+    setOpponentDisconnected: (disconnected) =>
+        set({ opponentDisconnected: disconnected }),
     addHit: (hit) =>
         set((s) => ({
             hitBoard: [...s.hitBoard, hit],

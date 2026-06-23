@@ -101,6 +101,12 @@ export class GameService {
     if (!game) {
       throw new WsException('Game not found');
     }
+    if (
+      Number.isInteger(pos.x) === false ||
+      Number.isInteger(pos.y) === false
+    ) {
+      throw new WsException('Invalid position: Coordinates must be integers');
+    }
 
     const result = game.fire(userId, pos);
 

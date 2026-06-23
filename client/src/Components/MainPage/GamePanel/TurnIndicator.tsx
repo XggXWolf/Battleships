@@ -1,7 +1,9 @@
 import { useGameStore } from "../../../stores/useGameStore";
 
 export default function TurnIndicator() {
-    const { currentTurn } = useGameStore();
+    const currentTurn = useGameStore((s) =>
+        s.opponentDisconnected ? "disconnected" : s.currentTurn,
+    );
 
     switch (currentTurn) {
         case "player":
@@ -28,11 +30,23 @@ export default function TurnIndicator() {
                     </span>
                 </div>
             );
+        case "disconnected":
+            return (
+                <div className="flex items-center space-x-2 bg-amber-900/40 border border-amber-500/60 px-4 py-1.5 rounded-full shadow-[0_0_15px_rgba(217,119,6,0.3)]">
+                    <span className="relative flex h-3 w-3">
+                        <span className="animate-pulse absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+                    </span>
+                    <span className="text-amber-400 font-bold tracking-widest text-sm drop-shadow-md">
+                        OPPONENT OFFLINE
+                    </span>
+                </div>
+            );
         default:
             return (
                 <div className="flex items-center space-x-2 bg-gray-800/80 border border-gray-600/50 px-3 py-1 rounded-full shadow-sm">
                     <span className="h-2 w-2 rounded-full bg-gray-500"></span>
-                    <span className="text-gray-400 font-bold tracking-wider text-xs uppercase">
+                    <span className="text-gray-400 font-bold tracking-wider text-sm uppercase">
                         Standing By
                     </span>
                 </div>
