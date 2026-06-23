@@ -15,22 +15,22 @@ const setupSocket = (socket: Socket) => {
 };
 
 export const chatSocket: Socket = setupSocket(
-    io(`${BACKEND_URL}/chat`, {
+    ((window as any).chatSocket = io(`${BACKEND_URL}/chat`, {
         autoConnect: false,
         withCredentials: true,
-    }),
+    })),
 );
 
 export const lobbySocket: Socket = setupSocket(
-    io(`${BACKEND_URL}/lobby`, {
+    ((window as any).lobbySocket = io(`${BACKEND_URL}/lobby`, {
         autoConnect: false,
         withCredentials: true,
-    }),
+    })),
 );
 
 export const gameSocket: Socket = setupSocket(
-    io(`${BACKEND_URL}/game`, {
+    ((window as any).gameSocket = io(`${BACKEND_URL}/game`, {
         autoConnect: false,
         withCredentials: true,
-    }),
+    })),
 );

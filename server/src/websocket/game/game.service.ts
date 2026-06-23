@@ -3,6 +3,7 @@ import { Game } from './game';
 import { GameDataDB, Position, Ship } from './game.types';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UsersService } from '../../users/users.service';
+import { WsException } from '@nestjs/websockets';
 
 @Injectable()
 export class GameService {
@@ -21,7 +22,7 @@ export class GameService {
   onGameJoin(gameId: string, userId: string) {
     const game = this.activeGames.get(gameId);
     if (!game) {
-      throw new Error('Game not found');
+      throw new WsException('Game not found');
     }
 
     const ships = game.placeShips(userId);
@@ -68,7 +69,7 @@ export class GameService {
   getPlayers(gameId: string): { player1Id: string; player2Id: string } {
     const game = this.activeGames.get(gameId);
     if (!game) {
-      throw new Error('Game not found');
+      throw new WsException('Game not found');
     }
 
     return { player1Id: game.player1Id, player2Id: game.player2Id };
@@ -98,7 +99,7 @@ export class GameService {
   fire(gameId: string, userId: string, pos: Position) {
     const game = this.activeGames.get(gameId);
     if (!game) {
-      throw new Error('Game not found');
+      throw new WsException('Game not found');
     }
 
     const result = game.fire(userId, pos);
@@ -109,7 +110,7 @@ export class GameService {
   getPhase(gameId: string) {
     const game = this.activeGames.get(gameId);
     if (!game) {
-      throw new Error('Game not found');
+      throw new WsException('Game not found');
     }
 
     return game.currentPhase;
@@ -162,7 +163,7 @@ export class GameService {
     const game = this.activeGames.get(gameId);
 
     if (!game) {
-      throw new Error('Game not found');
+      throw new WsException('Game not found');
     }
 
     const timeoutDuration = 3 * 1000; // 30 seconds
@@ -215,7 +216,7 @@ export class GameService {
   ): NodeJS.Timeout {
     const game = this.activeGames.get(gameId);
     if (!game) {
-      throw new Error('Game not found');
+      throw new WsException('Game not found');
     }
 
     const timeoutDuration = 10 * 1000; // 30 seconds
@@ -257,7 +258,7 @@ export class GameService {
   async finalizeGame(gameId: string, winnerId: string) {
     const game = this.activeGames.get(gameId);
     if (!game) {
-      throw new Error('Game not found');
+      throw new WsException('Game not found');
     }
 
     if (game.disconnectTimer) {
@@ -283,7 +284,7 @@ export class GameService {
     ]);
 
     if (!winner || !loser) {
-      throw new Error('Unexpected error: Winner or loser not found');
+      throw new WsException('Unexpected error: Winner or loser not found');
     }
 
     const { winnerEloChange, loserEloChange } = this.calculateEloChange(
