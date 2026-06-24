@@ -15,7 +15,7 @@ export default function PlayerInfo({
     showAddFriendButton,
 }: PlayerInfoProps) {
     const { user } = useUserStore();
-    const { opponentData } = useGameStore();
+    const { opponentData, opponentDisconnected } = useGameStore();
 
     return (
         <div className="bg-primary p-3 rounded-xl shadow-lg border border-color-border shrink-0">
@@ -36,9 +36,11 @@ export default function PlayerInfo({
                         </span>
                         {type === "player"
                             ? user.nickname
-                            : opponentData
-                              ? opponentData.nickname
-                              : "Opponent"}
+                            : opponentDisconnected
+                              ? "OPPONENT OFFLINE"
+                              : opponentData
+                                ? opponentData.nickname
+                                : "Opponent"}
                     </span>
 
                     <span

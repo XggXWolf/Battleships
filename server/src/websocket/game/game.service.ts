@@ -172,9 +172,9 @@ export class GameService {
       throw new WsException('Game not found');
     }
 
-    const timeoutDuration = 3 * 1000; // 30 seconds
+    const timeoutDuration = 60 * 1000; // 60 seconds
 
-    const timeOut = setTimeout(() => {
+    const timeOut = setTimeout(async () => {
       const randomPos = {
         x: Math.floor(Math.random() * 10) + 1,
         y: Math.floor(Math.random() * 10) + 1,
@@ -192,7 +192,7 @@ export class GameService {
 
       try {
         const result = game.fire(userId, randomPos);
-        onFire(result);
+        await onFire(result);
       } catch (err) {
         console.error(`[MoveTimer] Error firing shot for game ${gameId}:`, err);
       }
@@ -225,7 +225,7 @@ export class GameService {
       throw new WsException('Game not found');
     }
 
-    const timeoutDuration = 10 * 1000; // 30 seconds
+    const timeoutDuration = 30 * 1000; // 30 seconds
 
     console.log(
       `Starting disconnect timeout for game ${gameId} due to user ${disconnectedUserId} disconnecting.`,

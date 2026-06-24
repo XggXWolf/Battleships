@@ -3,6 +3,8 @@ import { useUserStore } from "../stores/useUserStore";
 import { gameSocket } from "./socket";
 
 let bound = false;
+let disconnectInterval: ReturnType<typeof setInterval> | null = null;
+let moveInterval: ReturnType<typeof setInterval> | null = null;
 
 export function bindGameSocketListeners() {
     if (bound) return;
@@ -34,6 +36,15 @@ export function bindGameSocketListeners() {
     gameSocket.on(
         "game_result",
         ({ winnerId, winnerEloChange, loserEloChange }) => {
+            if (disconnectInterval) {
+                clearInterval(disconnectInterval);
+                disconnectInterval = null;
+            }
+            if (moveInterval) {
+                clearInterval(moveInterval);
+                moveInterval = null;
+            }
+
             const eloChange =
                 useUserStore.getState().user.id === winnerId
                     ? winnerEloChange
@@ -52,10 +63,47 @@ export function bindGameSocketListeners() {
         },
     );
 
-    // Not yet implemented
+    const startDisconnectTimer = (timeout: number) => {
+        if (disconnectInterval) {
+            clearInterval(disconnectInterval);
+        }
+
+        useGameStore.getState().setOpponentDisconnected(true);
+        useGameStore.getState().setDisconnectTimer(timeout);
+
+        disconnectInterval = setInterval(() => {
+            const currentTimer = useGameStore.getState().disconnectTimer;
+            if (currentTimer !== null && currentTimer > 0) {
+                useGameStore.getState().setDisconnectTimer(currentTimer - 1);
+            } else {
+                clearInterval(disconnectInterval!);
+                disconnectInterval = null;
+            }
+        }, 1000);
+    };
+
     gameSocket.on("opponent_disconnected", ({ timeout }) => {
         console.log(`Opponent disconnected. Timeout: ${timeout} seconds.`);
+        startDisconnectTimer(timeout);
     });
+
+    const startMoveTimer = (time: number) => {
+        if (moveInterval) {
+            clearInterval(moveInterval);
+        }
+
+        useGameStore.getState().setMoveTimer(time);
+
+        moveInterval = setInterval(() => {
+            const currentTimer = useGameStore.getState().moveTimer;
+            if (currentTimer !== null && currentTimer > 0) {
+                useGameStore.getState().setMoveTimer(currentTimer - 1);
+            } else {
+                clearInterval(moveInterval!);
+                moveInterval = null;
+            }
+        }, 1000);
+    };
 
     gameSocket.on("fire_result", ({ isHit, won, position, turn }) => {
         const currentTurn = useGameStore.getState().currentTurn;
@@ -67,6 +115,8 @@ export function bindGameSocketListeners() {
             useGameStore.getState().addEnemyHit({ hit: isHit, ...position });
             console.log(useGameStore.getState().enemyHits);
         }
+
+        startMoveTimer(60);
 
         if (!won) {
             useGameStore

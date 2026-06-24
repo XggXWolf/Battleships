@@ -15,8 +15,15 @@ export class LobbyGatewayService {
 
   async handleQueueJoin(client: Socket) {
     const userId = client.data.sub;
+    if (this.gameService.getGameFromUserId(userId)) {
+      console.warn(
+        `Client ${client.id} attempted to join queue but is already in a game`,
+      );
+      return;
+    }
+
     if (this.playerQueue.has(userId)) {
-      console.log(`Client ${client.id} is already in the queue, re-adding`);
+      console.warn(`Client ${client.id} is already in the queue, re-adding`);
       this.handleQueueLeave(client);
     }
 

@@ -34,6 +34,31 @@ export class GameGateway extends BaseGateway {
     super(gatewayService);
   }
 
+  private createOnAutoFireCallback(gameId: string) {
+    const onAutoFire = async (autoResult: ReturnType<Game['fire']>) => {
+      if (!this.gameService.activeGames.has(gameId)) return;
+
+      this.server.to(gameId).emit('fire_result', autoResult);
+      if (autoResult.won) {
+        const finalResult = await this.gameService.finalizeGame(
+          gameId,
+          autoResult.turn,
+        );
+        this.gameService.removeGame(gameId);
+        this.server.to(gameId).emit('game_result', {
+          winnerId: finalResult.winnerId,
+          winnerEloChange: finalResult.winnerEloChange,
+          loserEloChange: finalResult.loserEloChange,
+        });
+      } else {
+        this.gameService.clearMoveTimer(gameId);
+        this.gameService.startMoveTimer(gameId, autoResult.turn, onAutoFire);
+      }
+    };
+
+    return onAutoFire;
+  }
+
   async handleConnection(client: Socket): Promise<void> {
     await super.handleConnection(client);
 
@@ -106,6 +131,12 @@ export class GameGateway extends BaseGateway {
       this.server.to(gameId).emit('placement_complete', {
         phase,
       });
+      const game = this.gameService.activeGames.get(gameId)!;
+      this.gameService.startMoveTimer(
+        gameId,
+        game.currentTurn,
+        this.createOnAutoFireCallback(gameId),
+      );
     }
   }
 
@@ -134,25 +165,6 @@ export class GameGateway extends BaseGateway {
       const result = this.gameService.fire(gameId, userId, pos);
       this.server.to(gameId).emit('fire_result', result);
 
-      const onAutoFire = async (autoResult: ReturnType<Game['fire']>) => {
-        this.server.to(gameId).emit('fire_result', autoResult);
-        if (autoResult.won) {
-          const finalResult = await this.gameService.finalizeGame(
-            gameId,
-            autoResult.turn,
-          );
-          this.gameService.removeGame(gameId);
-          this.server.to(gameId).emit('game_result', {
-            winnerId: finalResult.winnerId,
-            winnerEloChange: finalResult.winnerEloChange,
-            loserEloChange: finalResult.loserEloChange,
-          });
-        } else {
-          this.gameService.clearMoveTimer(gameId);
-          this.gameService.startMoveTimer(gameId, autoResult.turn, onAutoFire);
-        }
-      };
-
       if (result.won) {
         const {
           winnerElo,
@@ -178,7 +190,11 @@ export class GameGateway extends BaseGateway {
         });
       } else {
         this.gameService.clearMoveTimer(gameId);
-        this.gameService.startMoveTimer(gameId, result.turn, onAutoFire);
+        this.gameService.startMoveTimer(
+          gameId,
+          result.turn,
+          this.createOnAutoFireCallback(gameId),
+        );
       }
     } catch (err) {
       client.emit('error', {

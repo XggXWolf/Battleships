@@ -1,9 +1,14 @@
+import { useRef } from "react";
 import { useGameStore } from "../../../stores/useGameStore";
+import formatSeconds from "../../../util/formatSeconds";
 
 export default function TurnIndicator() {
     const currentTurn = useGameStore((s) =>
         s.opponentDisconnected ? "disconnected" : s.currentTurn,
     );
+
+    const moveTimer = useGameStore((s) => s.moveTimer);
+    const disconnectTimer = useGameStore((s) => s.disconnectTimer);
 
     switch (currentTurn) {
         case "player":
@@ -14,7 +19,9 @@ export default function TurnIndicator() {
                         <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
                     </span>
                     <span className="text-green-400 font-bold tracking-widest text-sm drop-shadow-md">
-                        YOUR TURN
+                        {moveTimer
+                            ? `${formatSeconds(moveTimer)}`
+                            : "YOUR TURN"}
                     </span>
                 </div>
             );
@@ -26,7 +33,9 @@ export default function TurnIndicator() {
                         <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
                     </span>
                     <span className="text-red-400 font-bold tracking-widest text-sm drop-shadow-md">
-                        ENEMY TURN
+                        {moveTimer
+                            ? `${formatSeconds(moveTimer)}`
+                            : "ENEMY TURN"}
                     </span>
                 </div>
             );
@@ -38,7 +47,9 @@ export default function TurnIndicator() {
                         <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
                     </span>
                     <span className="text-amber-400 font-bold tracking-widest text-sm drop-shadow-md">
-                        OPPONENT OFFLINE
+                        {disconnectTimer
+                            ? `${formatSeconds(disconnectTimer)}`
+                            : "OPPONENT OFFLINE"}
                     </span>
                 </div>
             );
@@ -47,7 +58,7 @@ export default function TurnIndicator() {
                 <div className="flex items-center space-x-2 bg-gray-800/80 border border-gray-600/50 px-3 py-1 rounded-full shadow-sm">
                     <span className="h-2 w-2 rounded-full bg-gray-500"></span>
                     <span className="text-gray-400 font-bold tracking-wider text-sm uppercase">
-                        Standing By
+                        STANDING BY
                     </span>
                 </div>
             );
