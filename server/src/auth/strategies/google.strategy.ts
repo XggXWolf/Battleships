@@ -15,10 +15,12 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
     });
   }
   async validate(accessToken: string, refreshToken: string, profile: Profile) {
-    return this.usersService.findOrCreateOAuthUser({
+    const user = await this.usersService.findOrCreateOAuthUser({
       email: profile.emails![0].value,
       provider: 'google',
       providerId: profile.id,
     });
+
+    return { ...user, sub: user.id };
   }
 }

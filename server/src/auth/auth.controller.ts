@@ -62,6 +62,7 @@ export class AuthController {
       return res.redirect(`${process.env.FRONTEND_URL}/oauth-failure`);
     }
 
+    console.log('Google OAuth callback user:', user);
     const token = await this.authService.generateJwtToken({
       id: user.sub,
       nickname: user.nickname,
