@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import { useGameStore } from "../../../stores/useGameStore";
 import formatSeconds from "../../../util/formatSeconds";
 
