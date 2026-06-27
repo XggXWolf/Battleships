@@ -29,27 +29,34 @@ export class GameService {
     return { phase: game.currentPhase, shipBoard: ships };
   }
 
-  onGameRejoin(
+  async onGameRejoin(
     gameId: string,
     userId: string,
-  ): {
+  ): Promise<{
     gameId: string;
     turn: string;
-    opponent: string;
+    opponent: { nickname: string; elo: number; id: string; role: string };
     gameStatus: string;
     hitBoard: Position[];
     enemyHitBoard: Position[];
     shipBoard: Ship[];
-  } {
+  }> {
     const game = this.activeGames.get(gameId)!;
 
     const opponentId =
       game.player1Id === userId ? game.player2Id : game.player1Id;
 
+    const opponentUser = await this.usersService.findMe(opponentId);
+
     return {
       gameId,
       turn: game.currentTurn,
-      opponent: opponentId,
+      opponent: {
+        nickname: opponentUser.nickname,
+        elo: opponentUser.elo,
+        id: opponentUser.id,
+        role: opponentUser.role,
+      },
       gameStatus: game.currentPhase,
       hitBoard: game.getShots(userId),
       enemyHitBoard: game.getShots(opponentId),

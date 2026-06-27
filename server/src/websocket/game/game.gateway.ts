@@ -96,10 +96,10 @@ export class GameGateway extends BaseGateway {
   }
 
   @SubscribeMessage('join_game')
-  handleJoinGame(
+  async handleJoinGame(
     @ConnectedSocket() client: Socket,
     @MessageBody() gameId: string,
-  ): void {
+  ): Promise<void> {
     client.join(gameId);
     console.log(`Client ${client.id} joined game ${gameId}`);
 
@@ -113,7 +113,7 @@ export class GameGateway extends BaseGateway {
 
     // Game not in placement phase = rejoining a game, no need to place ships
     if (game.currentPhase !== 'placement') {
-      const gameData = this.gameService.onGameRejoin(gameId, client.data.sub);
+      const gameData = await this.gameService.onGameRejoin(gameId, client.data.sub);
       client.emit('rejoin_game', gameData);
       return;
     }

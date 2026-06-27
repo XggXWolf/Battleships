@@ -26,7 +26,7 @@ export abstract class BaseGateway
 
     if (gameId) {
       console.log(`Client ${client.id} rejoined game ${gameId}`);
-      const gameData = this.gameService.onGameRejoin(gameId, client.data.sub);
+      const gameData = await this.gameService.onGameRejoin(gameId, client.data.sub);
       client.emit('rejoin_game', gameData);
     }
   }
