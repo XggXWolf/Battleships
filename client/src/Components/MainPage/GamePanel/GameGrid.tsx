@@ -8,7 +8,8 @@ import GridButton from "./GridButton";
 const GRID_SIZE = 10;
 
 export default function GameGrid() {
-    const { currentTurn, gameStatus, resetGame, eloChange } = useGameStore();
+    const { currentTurn, gameStatus, resetGame, eloChange, winner } =
+        useGameStore();
     const currentElo = useUserStore.getState().user.elo;
 
     function gameOver() {
@@ -50,7 +51,7 @@ export default function GameGrid() {
                     <div className="absolute inset-0 z-20 flex items-center justify-center bg-root/80 backdrop-blur-sm rounded-lg overflow-hidden">
                         {/* Overlay Card */}
                         <div className="flex flex-col items-center gap-6 p-8 rounded-xl bg-primary border border-color-border shadow-2xl">
-                            {currentTurn === "player" ? (
+                            {winner === "player" ? (
                                 <div className="flex flex-col items-center gap-1">
                                     <h2 className="text-3xl font-bold text-green-400 tracking-wide">
                                         VICTORY
