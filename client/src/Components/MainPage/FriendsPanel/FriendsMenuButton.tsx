@@ -27,29 +27,31 @@ export default function FriendsMenuButton() {
     return (
         <div className="fixed bottom-3 right-3 z-20 flex flex-col items-end space-y-2">
             {/* The dropdown menus for friends list and friend details are rendered here */}
-            <div className="flex flex-col items-end space-y-2 sm:flex-row sm:items-end sm:space-y-0 sm:space-x-2">
-                <div
-                    className={`transition-all duration-200 transform ${
-                        showFriendDetails
-                            ? "opacity-100 translate-x-0"
-                            : "opacity-0 translate-x-2 pointer-events-none"
-                    }`}
-                >
-                    {selectedFriendId !== null && (
-                        <FriendDetails friendId={selectedFriendId} />
-                    )}
-                </div>
+            {openFriendsDropdown && (
+                <div className="flex flex-col items-end space-y-2 sm:flex-row sm:items-end sm:space-y-0 sm:space-x-2">
+                    <div
+                        className={`transition-all duration-200 transform ${
+                            showFriendDetails
+                                ? "opacity-100 translate-x-0"
+                                : "opacity-0 translate-x-2 pointer-events-none"
+                        }`}
+                    >
+                        {selectedFriendId !== null && (
+                            <FriendDetails friendId={selectedFriendId} />
+                        )}
+                    </div>
 
-                <div
-                    className={`transition-all duration-200 ${
-                        openFriendsDropdown
-                            ? "opacity-100 translate-y-0"
-                            : "opacity-0 translate-y-2 pointer-events-none"
-                    }`}
-                >
-                    <FriendsDropdownMenu onFriendClick={onFriendClick} />
+                    <div
+                        className={`transition-all duration-200 ${
+                            openFriendsDropdown
+                                ? "opacity-100 translate-y-0"
+                                : "opacity-0 translate-y-2 pointer-events-none"
+                        }`}
+                    >
+                        <FriendsDropdownMenu onFriendClick={onFriendClick} />
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* The friends dropdown button */}
             <button
