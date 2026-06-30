@@ -65,6 +65,7 @@ export default function useLobby(onMatchFound?: () => void) {
 
         return () => {
             lobbySocket.off("match_found");
+            lobbySocket.off("rejoin_game");
         };
     }, [onMatchFound]);
 
