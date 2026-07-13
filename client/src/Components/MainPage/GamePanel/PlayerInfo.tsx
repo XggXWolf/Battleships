@@ -1,7 +1,11 @@
+import { useState } from "react";
 import { truncateRank } from "../../../util/rankFunctions";
 import TurnIndicator from "./TurnIndicator";
 import { useUserStore } from "../../../stores/useUserStore";
 import { useGameStore } from "../../../stores/useGameStore";
+import { useFriendsStore } from "../../../stores/useFriendsStore";
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 interface PlayerInfoProps {
     type: "player" | "opponent";
@@ -16,6 +20,41 @@ export default function PlayerInfo({
 }: PlayerInfoProps) {
     const { user } = useUserStore();
     const { opponentData, opponentDisconnected } = useGameStore();
+    const { sendRequest, friends, pendingSent, pendingReceived } = useFriendsStore();
+    
+    const [status, setStatus] = useState<"idle" | "loading" | "sent" | "error">("idle");
+
+    const handleAddFriend = async () => {
+        if (!opponentData) return;
+        setStatus("loading");
+
+        try {
+            const findRes = await fetch(`${BACKEND_URL}/users/${opponentData.nickname}`, {
+                credentials: "include",
+            });
+            if (!findRes.ok) {
+                setStatus("error");
+                return;
+            }
+            const targetUser = await findRes.json();
+            const result = await sendRequest(targetUser.id);
+            if (result.success) {
+                setStatus("sent");
+            } else {
+                setStatus("error");
+            }
+        } catch (err) {
+            setStatus("error");
+        }
+    };
+
+    // Determine if already friend or pending
+    let relationshipStatus: "none" | "friend" | "sent" | "received" = "none";
+    if (opponentData) {
+        if (friends.some((f) => f.nickname === opponentData.nickname)) relationshipStatus = "friend";
+        else if (pendingSent.some((f) => f.nickname === opponentData.nickname)) relationshipStatus = "sent";
+        else if (pendingReceived.some((f) => f.nickname === opponentData.nickname)) relationshipStatus = "received";
+    }
 
     return (
         <div className="bg-primary p-3 rounded-xl shadow-lg border border-color-border shrink-0">
@@ -69,16 +108,33 @@ export default function PlayerInfo({
 
                 {/* Bottom container for opponent, has add as friend button. */}
                 {/* TO-DO: Restyle */}
-                {showAddFriendButton && (
+                {showAddFriendButton && relationshipStatus !== "friend" && relationshipStatus !== "received" && (
                     <button
-                        className="flex items-center gap-2 px-4 py-1.5 
-                                     bg-gray-900/20 hover:bg-blue-900/40 
-                                     text-blue-400/80 hover:text-blue-400 text-xs font-bold uppercase tracking-wider
-                                     border border-gray-500/30 hover:border-blue-500/60 
-                                     rounded-lg transition-all duration-200 
-                                     active:scale-95 shadow-sm cursor-pointer hover:shadow-[0_0_15px_rgba(59,130,246,0.4)]"
+                        onClick={handleAddFriend}
+                        disabled={status === "loading" || status === "sent" || relationshipStatus === "sent"}
+                        className={`flex items-center gap-2 px-4 py-1.5 
+                                     text-xs font-bold uppercase tracking-wider
+                                     border rounded-lg transition-all duration-200 
+                                     shadow-sm cursor-pointer
+                                     ${
+                                         status === "sent" || relationshipStatus === "sent"
+                                             ? "bg-green-900/40 text-green-400 border-green-500/60"
+                                             : status === "error"
+                                               ? "bg-red-900/40 text-red-400 border-red-500/60"
+                                               : "bg-gray-900/20 hover:bg-blue-900/40 text-blue-400/80 hover:text-blue-400 border-gray-500/30 hover:border-blue-500/60 active:scale-95 hover:shadow-[0_0_15px_rgba(59,130,246,0.4)]"
+                                     }`}
                     >
-                        <span className="font-bold">+</span>Add Friend
+                        {status === "loading" ? (
+                            <span className="animate-pulse">Adding...</span>
+                        ) : status === "sent" || relationshipStatus === "sent" ? (
+                            "Request Sent"
+                        ) : status === "error" ? (
+                            "Error"
+                        ) : (
+                            <>
+                                <span className="font-bold">+</span>Add Friend
+                            </>
+                        )}
                     </button>
                 )}
             </div>

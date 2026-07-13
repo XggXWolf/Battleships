@@ -20,6 +20,7 @@ import {
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { CreateUserOAuthDto } from './dto/create-user-oauth.dto';
 import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
+import { globalEventEmitter } from '../utils/eventEmitter';
 
 type PublicUser = Pick<
   User,
@@ -261,6 +262,9 @@ export class UsersService {
       ),
     ]);
 
+    globalEventEmitter.emit('friend_activity', userId);
+    globalEventEmitter.emit('friend_activity', requesterId);
+
     return { success: true };
   }
 
@@ -300,6 +304,9 @@ export class UsersService {
         }),
       ),
     ]);
+
+    globalEventEmitter.emit('friend_activity', userId);
+    globalEventEmitter.emit('friend_activity', friendId);
 
     return { success: true };
   }
@@ -394,6 +401,9 @@ export class UsersService {
       ),
     ]);
 
+    globalEventEmitter.emit('friend_activity', userId);
+    globalEventEmitter.emit('friend_activity', targetId);
+
     return { success: true };
   }
   async rejectFriendRequest(userId: string, requesterId: string) {
@@ -440,6 +450,9 @@ export class UsersService {
         }),
       ),
     ]);
+
+    globalEventEmitter.emit('friend_activity', userId);
+    globalEventEmitter.emit('friend_activity', requesterId);
 
     return { success: true };
   }

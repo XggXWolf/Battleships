@@ -1,14 +1,24 @@
-import dummyFriends from "../../../data/dummy/friends";
+import { useFriendsStore } from "../../../stores/useFriendsStore";
 
 interface FriendDetailsProps {
-    friendId: number;
+    friendId: string;
 }
 
 // Panel that shows details of a selected friend, such as their ELO rating, online status, and buttons to invite them to a game or remove them from the friends list.
 //  It appears when clicking on a friend in the FriendsDropdownMenu.
 
 export default function FriendDetails({ friendId }: FriendDetailsProps) {
-    const friend = dummyFriends.find((f) => f.id === friendId);
+    const { friends, pendingReceived, acceptRequest, rejectRequest, removeFriend } = useFriendsStore();
+    
+    let friend = friends.find((f) => f.id === friendId);
+    let isPending = false;
+    
+    if (!friend) {
+        friend = pendingReceived.find((f) => f.id === friendId);
+        isPending = !!friend;
+    }
+
+    if (!friend) return null;
 
     return (
         <div
@@ -17,38 +27,49 @@ export default function FriendDetails({ friendId }: FriendDetailsProps) {
         >
             <div className="py-1">
                 <div className="px-4 py-1 text-xs font-bold text-blue-400 border-b border-gray-700">
-                    — {friend?.name} —
+                    — {friend.nickname} —
                 </div>
 
                 <div className="px-4 py-2 flex items-center justify-between">
                     <span className="text-gray-400 text-xs">Rating</span>
                     <span className="bg-yellow-800 text-yellow-300 text-[10px] font-semibold px-2 py-0.5 rounded-full">
-                        ELO: {friend?.elo}
-                    </span>
-                </div>
-
-                <div className="px-4 py-2 flex items-center justify-between border-t border-gray-700">
-                    <span className="text-gray-400 text-xs">Status</span>
-                    <span
-                        className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                            friend?.status === "online"
-                                ? "bg-green-900/60 text-green-400"
-                                : "bg-gray-700 text-gray-400"
-                        }`}
-                    >
-                        {friend?.status === "online" ? "Online" : "Offline"}
+                        ELO: {friend.elo}
                     </span>
                 </div>
 
                 <div className="px-4 py-2 space-y-1 border-t border-gray-700 mt-1">
-                    <button className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-700 text-green-400 hover:text-green-300 transition-colors text-xs font-medium">
-                        <span>Invite to Game</span>
-                        <span>→</span>
-                    </button>
-                    <button className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-700 text-red-400 hover:text-red-300 transition-colors text-xs font-medium">
-                        <span>Remove Friend</span>
-                        <span>×</span>
-                    </button>
+                    {isPending ? (
+                        <>
+                            <button 
+                                onClick={() => acceptRequest(friend.id)}
+                                className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-green-900/50 text-green-400 hover:text-green-300 transition-colors text-xs font-medium"
+                            >
+                                <span>Accept Request</span>
+                                <span>✓</span>
+                            </button>
+                            <button 
+                                onClick={() => rejectRequest(friend.id)}
+                                className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-red-900/50 text-red-400 hover:text-red-300 transition-colors text-xs font-medium"
+                            >
+                                <span>Decline Request</span>
+                                <span>×</span>
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <button className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-700 text-green-400 hover:text-green-300 transition-colors text-xs font-medium">
+                                <span>Invite to Game</span>
+                                <span>→</span>
+                            </button>
+                            <button 
+                                onClick={() => removeFriend(friend.id)}
+                                className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-700 text-red-400 hover:text-red-300 transition-colors text-xs font-medium"
+                            >
+                                <span>Remove Friend</span>
+                                <span>×</span>
+                            </button>
+                        </>
+                    )}
                 </div>
             </div>
         </div>

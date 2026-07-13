@@ -13,6 +13,7 @@ import { WsReadyGuard } from '../../guards/ws-ready.guard';
 import { WsThrottlerGuard } from '../../guards/ws-throttler.guard';
 import { UseGuards } from '@nestjs/common';
 import { WS_CORS } from '../gateway.config';
+import { globalEventEmitter } from '../../utils/eventEmitter';
 
 @UseGuards(WsReadyGuard, WsThrottlerGuard)
 @WebSocketGateway({ namespace: 'lobby', cors: WS_CORS })
@@ -23,6 +24,13 @@ export class LobbyGateway extends BaseGateway {
     private readonly lobbyGatewayService: LobbyGatewayService,
   ) {
     super(gatewayService);
+    
+    globalEventEmitter.on('friend_activity', (userId: string) => {
+      const socket = this.gatewayService.onlineUsers.get(userId);
+      if (socket) {
+        socket.emit('friend_activity');
+      }
+    });
   }
 
   @SubscribeMessage('join_queue')
