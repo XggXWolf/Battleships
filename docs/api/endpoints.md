@@ -67,6 +67,34 @@ All routes under `/users` require authentication by default and expect 'admin' o
 - **Description:** Retrieves the profile of the currently authenticated user.
 - **Access:** Protected
 
+### `GET /users/me/friends`
+- **Description:** Retrieves the friend list of the currently authenticated user.
+- **Access:** Protected
+
+### `DELETE /users/me/friends/:friendId`
+- **Description:** Removes a friend from the currently authenticated user's friend list.
+- **Access:** Protected
+
+### `GET /users/me/friend-requests`
+- **Description:** Retrieves the pending friend requests received by the currently authenticated user.
+- **Access:** Protected
+
+### `GET /users/me/friend-requests/sent`
+- **Description:** Retrieves the pending friend requests sent by the currently authenticated user.
+- **Access:** Protected
+
+### `POST /users/me/friend-requests/:targetId`
+- **Description:** Sends a friend request to a specific user using their ID.
+- **Access:** Protected
+
+### `PATCH /users/me/friend-requests/:requesterId`
+- **Description:** Accepts a pending friend request from a specific user.
+- **Access:** Protected
+
+### `DELETE /users/me/friend-requests/:requesterId`
+- **Description:** Rejects or cancels a pending friend request from a specific user.
+- **Access:** Protected
+
 ### `GET /users/:identifier`
 - **Description:** Retrieves a specific user by their identifier (ID or nickname).
 - **Access:** Protected
