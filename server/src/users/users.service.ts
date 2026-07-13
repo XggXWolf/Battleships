@@ -211,80 +211,97 @@ export class UsersService {
     }
   }
 
-  async addFriend(userId: string, friendId: string) {
-    const friendExists = await prismaCall(() =>
-      this.prisma.user.findUnique({
-        where: { id: friendId },
-        select: { id: true },
-      }),
-    );
-    if (!friendExists) {
-      throw new NotFoundException('Friend not found');
-    }
+  async acceptFriendRequest(userId: string, requesterId: string) {
+    const [user, requester] = await Promise.all([
+      prismaCall(() =>
+        this.prisma.user.findUnique({
+          where: { id: userId },
+          select: { friends: true, friendRequestsReceived: true },
+        }),
+      ),
+      prismaCall(() =>
+        this.prisma.user.findUnique({
+          where: { id: requesterId },
+          select: { friends: true, friendRequestsSent: true },
+        }),
+      ),
+    ]);
 
-    const user = await prismaCall(() =>
-      this.prisma.user.findUnique({
-        where: { id: userId },
-        select: { friends: true },
-      }),
-    );
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+    if (!user) throw new NotFoundException('User not found');
+    if (!requester) throw new NotFoundException('Requester not found');
 
-    if (user.friends.includes(friendId)) {
-      throw new ConflictException('Friend already added');
-    }
+    if (!user.friendRequestsReceived.includes(requesterId))
+      throw new NotFoundException('No pending friend request from this user');
 
-    return prismaCall(() =>
-      this.prisma.user.update({
-        where: { id: userId },
-        data: {
-          friends: {
-            push: friendId,
+    if (user.friends.includes(requesterId))
+      throw new ConflictException('Already friends');
+
+    await Promise.all([
+      prismaCall(() =>
+        this.prisma.user.update({
+          where: { id: userId },
+          data: {
+            friends: { push: requesterId },
+            friendRequestsReceived: {
+              set: user.friendRequestsReceived.filter((id) => id !== requesterId),
+            },
           },
-        },
-        select: FRIEND_SELECT,
-      }),
-    );
+        }),
+      ),
+      prismaCall(() =>
+        this.prisma.user.update({
+          where: { id: requesterId },
+          data: {
+            friends: { push: userId },
+            friendRequestsSent: {
+              set: requester.friendRequestsSent.filter((id) => id !== userId),
+            },
+          },
+        }),
+      ),
+    ]);
+
+    return { success: true };
   }
 
   async removeFriend(userId: string, friendId: string) {
-    const friendExists = await prismaCall(() =>
-      this.prisma.user.findUnique({
-        where: { id: friendId },
-        select: { id: true },
-      }),
-    );
-    if (!friendExists) {
-      throw new NotFoundException('Friend not found');
-    }
+    const [user, friend] = await Promise.all([
+      prismaCall(() =>
+        this.prisma.user.findUnique({
+          where: { id: userId },
+          select: { friends: true },
+        }),
+      ),
+      prismaCall(() =>
+        this.prisma.user.findUnique({
+          where: { id: friendId },
+          select: { friends: true },
+        }),
+      ),
+    ]);
 
-    const user = await prismaCall(() =>
-      this.prisma.user.findUnique({
-        where: { id: userId },
-        select: { friends: true },
-      }),
-    );
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+    if (!user) throw new NotFoundException('User not found');
+    if (!friend) throw new NotFoundException('Friend not found');
 
-    if (!user.friends.includes(friendId)) {
-      throw new ConflictException('Friend not in friends list');
-    }
+    if (!user.friends.includes(friendId))
+      throw new NotFoundException('This user is not in your friends list');
 
-    return prismaCall(() =>
-      this.prisma.user.update({
-        where: { id: userId },
-        data: {
-          friends: {
-            set: user.friends.filter((id) => id !== friendId),
-          },
-        },
-        select: FRIEND_SELECT,
-      }),
-    );
+    await Promise.all([
+      prismaCall(() =>
+        this.prisma.user.update({
+          where: { id: userId },
+          data: { friends: { set: user.friends.filter((id) => id !== friendId) } },
+        }),
+      ),
+      prismaCall(() =>
+        this.prisma.user.update({
+          where: { id: friendId },
+          data: { friends: { set: friend.friends.filter((id) => id !== userId) } },
+        }),
+      ),
+    ]);
+
+    return { success: true };
   }
   async findFriends(userId: string) {
     const user = await prismaCall(() =>
@@ -300,6 +317,131 @@ export class UsersService {
         select: FRIEND_SELECT,
       }),
     );
+  }
+
+  async findPendingFriendRequests(userId: string) {
+    const user = await prismaCall(() =>
+      this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { friendRequestsReceived: true },
+      }),
+    );
+    if (!user) throw new NotFoundException('User not found');
+
+    return prismaCall(() =>
+      this.prisma.user.findMany({
+        where: { id: { in: user.friendRequestsReceived } },
+        select: FRIEND_SELECT,
+      }),
+    );
+  }
+  async findSentFriendRequests(userId: string) {
+    const user = await prismaCall(() =>
+      this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { friendRequestsSent: true },
+      }),
+    );
+    if (!user) throw new NotFoundException('User not found');
+
+    return prismaCall(() =>
+      this.prisma.user.findMany({
+        where: { id: { in: user.friendRequestsSent } },
+        select: FRIEND_SELECT,
+      }),
+    );
+  }
+  async sendFriendRequest(userId: string, targetId: string) {
+    if (userId === targetId)
+      throw new ConflictException('You cannot send a friend request to yourself');
+
+    const [user, target] = await Promise.all([
+      prismaCall(() =>
+        this.prisma.user.findUnique({
+          where: { id: userId },
+          select: { friends: true, friendRequestsSent: true },
+        }),
+      ),
+      prismaCall(() =>
+        this.prisma.user.findUnique({
+          where: { id: targetId },
+          select: { id: true },
+        }),
+      ),
+    ]);
+
+    if (!user) throw new NotFoundException('User not found');
+    if (!target) throw new NotFoundException('Target user not found');
+
+    if (user.friends.includes(targetId))
+      throw new ConflictException('Already friends');
+
+    if (user.friendRequestsSent.includes(targetId))
+      throw new ConflictException('Friend request already sent');
+
+    await Promise.all([
+      prismaCall(() =>
+        this.prisma.user.update({
+          where: { id: targetId },
+          data: { friendRequestsReceived: { push: userId } },
+        }),
+      ),
+      prismaCall(() =>
+        this.prisma.user.update({
+          where: { id: userId },
+          data: { friendRequestsSent: { push: targetId } },
+        }),
+      ),
+    ]);
+
+    return { success: true };
+  }
+  async rejectFriendRequest(userId: string, requesterId: string) {
+    const [user, requester] = await Promise.all([
+      prismaCall(() =>
+        this.prisma.user.findUnique({
+          where: { id: userId },
+          select: { friendRequestsReceived: true },
+        }),
+      ),
+      prismaCall(() =>
+        this.prisma.user.findUnique({
+          where: { id: requesterId },
+          select: { friendRequestsSent: true },
+        }),
+      ),
+    ]);
+
+    if (!user) throw new NotFoundException('User not found');
+    if (!requester) throw new NotFoundException('Requester not found');
+
+    if (!user.friendRequestsReceived.includes(requesterId))
+      throw new NotFoundException('No pending friend request from this user');
+
+    await Promise.all([
+      prismaCall(() =>
+        this.prisma.user.update({
+          where: { id: userId },
+          data: {
+            friendRequestsReceived: {
+              set: user.friendRequestsReceived.filter((id) => id !== requesterId),
+            },
+          },
+        }),
+      ),
+      prismaCall(() =>
+        this.prisma.user.update({
+          where: { id: requesterId },
+          data: {
+            friendRequestsSent: {
+              set: requester.friendRequestsSent.filter((id) => id !== userId),
+            },
+          },
+        }),
+      ),
+    ]);
+
+    return { success: true };
   }
 
   // Internal method used for authentication where we need the password hash

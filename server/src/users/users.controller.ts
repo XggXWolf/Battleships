@@ -8,7 +8,6 @@ import {
   Delete,
   Query,
   Req,
-  UnauthorizedException,
   ForbiddenException,
 } from '@nestjs/common';
 import { Request } from 'express';
@@ -56,14 +55,48 @@ export class UsersController {
     return this.usersService.findFriends(user!.sub!);
   }
 
-  @Post('me/friends')
-  addFriend(@Req() { user }: Request, @Body('friendId') friendId: string) {
-    return this.usersService.addFriend(user!.sub!, friendId);
+  @Get('me/friends/:friendId')
+  findFriend(@Req() { user }: Request, @Param('friendId') friendId: string) {
+    return this.usersService.findOne(friendId, user!.role || 'user');
   }
 
   @Delete('me/friends/:friendId')
   removeFriend(@Req() { user }: Request, @Param('friendId') friendId: string) {
     return this.usersService.removeFriend(user!.sub!, friendId);
+  }
+
+  @Get('me/friend-requests')
+  findPendingFriendRequests(@Req() { user }: Request) {
+    return this.usersService.findPendingFriendRequests(user!.sub!);
+  }
+
+  @Get('me/friend-requests/sent')
+  findSentFriendRequests(@Req() { user }: Request) {
+    return this.usersService.findSentFriendRequests(user!.sub!);
+  }
+
+  @Post('me/friend-requests/:targetId')
+  sendFriendRequest(
+    @Req() { user }: Request,
+    @Param('targetId') targetId: string,
+  ) {
+    return this.usersService.sendFriendRequest(user!.sub!, targetId);
+  }
+
+  @Patch('me/friend-requests/:requesterId')
+  acceptFriendRequest(
+    @Req() { user }: Request,
+    @Param('requesterId') requesterId: string,
+  ) {
+    return this.usersService.acceptFriendRequest(user!.sub!, requesterId);
+  }
+
+  @Delete('me/friend-requests/:requesterId')
+  rejectFriendRequest(
+    @Req() { user }: Request,
+    @Param('requesterId') requesterId: string,
+  ) {
+    return this.usersService.rejectFriendRequest(user!.sub!, requesterId);
   }
 
   @Get(':identifier')
@@ -72,11 +105,7 @@ export class UsersController {
     @Param('identifier') identifier: string,
     @Query('extend') extend?: string,
   ) {
-    if (!user) {
-      throw new UnauthorizedException('Unauthorized');
-    }
-
-    return this.usersService.findOne(identifier, user.role || 'user', extend);
+    return this.usersService.findOne(identifier, user!.role || 'user', extend);
   }
 
   @Patch(':identifier')
