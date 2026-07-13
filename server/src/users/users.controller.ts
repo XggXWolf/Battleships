@@ -37,11 +37,7 @@ export class UsersController {
 
   @Get()
   findMany(@Req() { user }: Request, @Query() PaginationDto: PaginationDto) {
-    if (!user) {
-      throw new UnauthorizedException('Unauthorized');
-    }
-
-    return this.usersService.findMany(PaginationDto, user.role || 'user');
+    return this.usersService.findMany(PaginationDto, user!.role || 'user');
   }
 
   @SkipAuth()
@@ -53,6 +49,21 @@ export class UsersController {
   @Get('me')
   findMe(@Req() { user }: Request) {
     return this.usersService.findMe(user!.sub!);
+  }
+
+  @Get('me/friends')
+  findFriends(@Req() { user }: Request) {
+    return this.usersService.findFriends(user!.sub!);
+  }
+
+  @Post('me/friends')
+  addFriend(@Req() { user }: Request, @Body('friendId') friendId: string) {
+    return this.usersService.addFriend(user!.sub!, friendId);
+  }
+
+  @Delete('me/friends/:friendId')
+  removeFriend(@Req() { user }: Request, @Param('friendId') friendId: string) {
+    return this.usersService.removeFriend(user!.sub!, friendId);
   }
 
   @Get(':identifier')

@@ -45,6 +45,13 @@ const PUBLIC_USER_SELECT = {
   isProfileComplete: true,
 } as const;
 
+const FRIEND_SELECT = {
+  id: true,
+  nickname: true,
+  elo: true,
+  role: true,
+} as const;
+
 const DUMMY_HASH = '$2a$10$CwTycUXWue0Thq9StjUM0uJ8GryuVYJFA9qv1n5yH9iY7vHne'; // dummy bcrpyt hash for timing attack mitigation
 
 // Handle specific Prisma errors in one place, can be used for all Prisma calls in this service
@@ -202,6 +209,97 @@ export class UsersService {
       if (err instanceof HttpException) throw err;
       throw new InternalServerErrorException('Failed to find user');
     }
+  }
+
+  async addFriend(userId: string, friendId: string) {
+    const friendExists = await prismaCall(() =>
+      this.prisma.user.findUnique({
+        where: { id: friendId },
+        select: { id: true },
+      }),
+    );
+    if (!friendExists) {
+      throw new NotFoundException('Friend not found');
+    }
+
+    const user = await prismaCall(() =>
+      this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { friends: true },
+      }),
+    );
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.friends.includes(friendId)) {
+      throw new ConflictException('Friend already added');
+    }
+
+    return prismaCall(() =>
+      this.prisma.user.update({
+        where: { id: userId },
+        data: {
+          friends: {
+            push: friendId,
+          },
+        },
+        select: FRIEND_SELECT,
+      }),
+    );
+  }
+
+  async removeFriend(userId: string, friendId: string) {
+    const friendExists = await prismaCall(() =>
+      this.prisma.user.findUnique({
+        where: { id: friendId },
+        select: { id: true },
+      }),
+    );
+    if (!friendExists) {
+      throw new NotFoundException('Friend not found');
+    }
+
+    const user = await prismaCall(() =>
+      this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { friends: true },
+      }),
+    );
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (!user.friends.includes(friendId)) {
+      throw new ConflictException('Friend not in friends list');
+    }
+
+    return prismaCall(() =>
+      this.prisma.user.update({
+        where: { id: userId },
+        data: {
+          friends: {
+            set: user.friends.filter((id) => id !== friendId),
+          },
+        },
+        select: FRIEND_SELECT,
+      }),
+    );
+  }
+  async findFriends(userId: string) {
+    const user = await prismaCall(() =>
+      this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { friends: true },
+      }),
+    );
+    if (!user) throw new NotFoundException('User not found');
+    return prismaCall(() =>
+      this.prisma.user.findMany({
+        where: { id: { in: user.friends } },
+        select: FRIEND_SELECT,
+      }),
+    );
   }
 
   // Internal method used for authentication where we need the password hash

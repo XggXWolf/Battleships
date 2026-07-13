@@ -23,6 +23,7 @@ model User {
   providerId        String
   elo               Int      @default(1000)
   role              String   @default("user")
+  friends           String[] @default([])
   createdAt         DateTime @default(now())
   isProfileComplete Boolean  @default(false)
   isBanned          Boolean  @default(false)

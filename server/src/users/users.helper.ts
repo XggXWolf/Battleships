@@ -1,9 +1,9 @@
 import { isMongoId } from 'class-validator';
 
-const VALID_EXTENSIONS = ['elo', 'role', 'email'] as const;
+const VALID_EXTENSIONS = ['elo', 'role', 'email', 'friends'] as const;
 
 const ROLE_EXTEND_PERMS: Record<string, readonly Extension[]> = {
-  internal: ['elo', 'role', 'email'],
+  internal: ['elo', 'role', 'email', 'friends'],
   admin: ['elo', 'role', 'email'],
   user: ['elo', 'role'],
 } as const;
